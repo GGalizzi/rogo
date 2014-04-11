@@ -9,18 +9,18 @@ type Map struct {
 }
 
 func NewMap() *Map {
-  m := new(Map)
+	m := new(Map)
 	m.Width = 50
-	m.Height = 100
+	m.Height = 20
 
-  m.Tiles = make([]*Tile, m.Height*m.Width)
+	m.Tiles = make([]*Tile, m.Height*m.Width)
 
-  for i, _ := range m.Tiles {
-    m.Tiles[i] = NewTile();
-  }
+	for i, _ := range m.Tiles {
+		m.Tiles[i] = NewTile()
+	}
 
-	for x := 0; x < m.Width-2; x++ {
-		for y := 0; y < m.Height-2; y++ {
+	for x := 0; x < m.Width; x++ {
+		for y := 0; y < m.Height; y++ {
 			if y == 0 || y == m.Height-1 || x == 0 || x == m.Width-1 {
 				m.Tiles[x+y*m.Width].SetSprite(0, 9)
 				m.Tiles[x+y*m.Width].Blocks = true
@@ -30,7 +30,7 @@ func NewMap() *Map {
 		}
 	}
 
-  return m
+	return m
 }
 
 func (m *Map) Draw(window *sf.RenderWindow) {

@@ -4,12 +4,20 @@ import (
 	sf "bitbucket.org/krepa098/gosfml2"
 )
 
+type Drawer interface {
+	Draw(*sf.RenderWindow)
+}
+
+func (g *Game) Draw(d Drawer) {
+	d.Draw(g.Window)
+}
+
 type Game struct {
 	Window *sf.RenderWindow
 	Map    *Map
 	Player *Entity
 
-	Texture *sf.Texture
+	Drawers []Drawer // Drawable entities on map.
 }
 
 func NewGame() *Game {
@@ -18,6 +26,8 @@ func NewGame() *Game {
 
 	g.Map = NewMap()
 	g.Player = NewEntity(0, 0, 2, 2, g.Map)
+
+	g.Drawers = append(g.Drawers, g.Map, g.Player)
 
 	return g
 }
@@ -28,34 +38,38 @@ func (g *Game) run() {
 			switch et := event.(type) {
 			case sf.EventClosed:
 				g.Window.Close()
-			case sf.EventKeyPressed:
-				g.handleInput(et.Code)
+			case sf.EventTextEntered:
+				g.handleInput(et.Char)
 			}
 		}
 		g.Window.Clear(sf.ColorBlack())
-		g.Map.Draw(g.Window)
-		g.Player.Sprite.Draw(g.Window, sf.DefaultRenderStates())
+
+		for _, d := range g.Drawers {
+			g.Draw(d)
+		}
 		g.Window.Display()
 	}
 }
 
-func (g *Game) handleInput(key sf.KeyCode) {
+func (g *Game) handleInput(key rune) {
 	switch key {
-	case sf.KeyNumpad2:
+	case '2':
 		g.Player.Move(0, 1)
-	case sf.KeyNumpad3:
+	case '3':
 		g.Player.Move(1, 1)
-	case sf.KeyNumpad6:
+	case '6':
 		g.Player.Move(1, 0)
-	case sf.KeyNumpad9:
+	case '9':
 		g.Player.Move(1, -1)
-	case sf.KeyNumpad8:
+	case '8':
 		g.Player.Move(0, -1)
-	case sf.KeyNumpad7:
+	case '7':
 		g.Player.Move(-1, -1)
-	case sf.KeyNumpad4:
+	case '4':
 		g.Player.Move(-1, 0)
-	case sf.KeyNumpad1:
+	case '1':
 		g.Player.Move(-1, 1)
+	case 'Q':
+		g.Window.Close()
 	}
 }

@@ -1,21 +1,19 @@
 package main
 
 import (
-  sf "bitbucket.org/krepa098/gosfml2"
-  "runtime"
+	"runtime"
 )
+
 const SpriteSize = 16
 
 var G *Game
 
 func init() {
-  runtime.LockOSThread()
+	runtime.LockOSThread()
 }
 
 func main() {
-  G = NewGame()
+	G = NewGame()
 
-  G.Texture,_ = sf.NewTextureFromFile("ascii.png",nil)
-
-  G.run()
+	G.run()
 }

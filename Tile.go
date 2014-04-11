@@ -13,10 +13,10 @@ type Tile struct {
 func NewTile() *Tile {
 	t := new(Tile)
 
-  t.Sprite,_ = sf.NewSprite(EntitiesTexture)
+	t.Sprite, _ = sf.NewSprite(EntitiesTexture)
 	t.Sprite.SetTextureRect(sf.IntRect{SpriteSize * 2, SpriteSize * 2, SpriteSize, SpriteSize})
 
-  return t;
+	return t
 }
 
 func (t *Tile) SetSprite(x, y int) {
@@ -24,6 +24,6 @@ func (t *Tile) SetSprite(x, y int) {
 }
 
 func (t *Tile) Draw(window *sf.RenderWindow, x, y int) {
-  t.Sprite.SetPosition(sf.Vector2f{float32(x*SpriteSize), float32(y*SpriteSize)})
-  t.Sprite.Draw(window,sf.DefaultRenderStates())
+	t.Sprite.SetPosition(sf.Vector2f{float32(x * SpriteSize), float32(y * SpriteSize)})
+	t.Sprite.Draw(window, sf.DefaultRenderStates())
 }
