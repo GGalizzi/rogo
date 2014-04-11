@@ -59,28 +59,31 @@ func (g *Game) run() {
 	}
 }
 
-func (g *Game) moveControl(e *Entity, x, y int) {
-	e.Move(x, y)
-	g.gameView.SetCenter(e.PosVector())
-}
 func (g *Game) handleInput(key rune) {
+	inControl := g.player
+
+	move := func(x, y int) {
+		inControl.Move(x, y)
+		g.gameView.SetCenter(inControl.PosVector())
+	}
+
 	switch key {
 	case '2':
-		g.moveControl(g.player, 0, 1)
+		move(0, 1)
 	case '3':
-		g.moveControl(g.player, 1, 1)
+		move(1, 1)
 	case '6':
-		g.moveControl(g.player, 1, 0)
+		move(1, 0)
 	case '9':
-		g.moveControl(g.player, 1, -1)
+		move(1, -1)
 	case '8':
-		g.moveControl(g.player, 0, -1)
+		move(0, -1)
 	case '7':
-		g.moveControl(g.player, -1, -1)
+		move(-1, -1)
 	case '4':
-		g.moveControl(g.player, -1, 0)
+		move(-1, 0)
 	case '1':
-		g.moveControl(g.player, -1, 1)
+		move(-1, 1)
 	case 'Q':
 		g.window.Close()
 	}
