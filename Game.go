@@ -9,67 +9,79 @@ type Drawer interface {
 }
 
 func (g *Game) Draw(d Drawer) {
-	d.Draw(g.Window)
+	d.Draw(g.window)
 }
 
 type Game struct {
-	Window *sf.RenderWindow
-	Map    *Map
-	Player *Entity
+	window *sf.RenderWindow
+	area   *Area
+	player *Entity
 
-	Drawers []Drawer // Drawable entities on map.
+	drawers []Drawer // Drawable entities on map.
+
+	gameView *sf.View
 }
 
 func NewGame() *Game {
 	g := new(Game)
-	g.Window = sf.NewRenderWindow(sf.VideoMode{840, 780, 32}, "GoSFMLike", sf.StyleDefault, sf.DefaultContextSettings())
+	g.window = sf.NewRenderWindow(sf.VideoMode{840, 780, 32}, "GoSFMLike", sf.StyleDefault, sf.DefaultContextSettings())
 
-	g.Map = NewMap()
-	g.Player = NewEntity(0, 0, 2, 2, g.Map)
+	g.area = NewArea()
+	g.player = NewEntity(0, 0, 2, 2, g.area)
 
-	g.Drawers = append(g.Drawers, g.Map, g.Player)
+	g.drawers = append(g.drawers, g.area, g.player)
+
+	g.gameView = sf.NewView()
+	g.gameView.SetCenter(g.player.PosVector())
+	g.gameView.SetSize(sf.Vector2f{150, 150})
+	g.gameView.SetViewport(sf.FloatRect{0, 0, .75, .75})
 
 	return g
 }
 
 func (g *Game) run() {
-	for g.Window.IsOpen() {
-		for event := g.Window.PollEvent(); event != nil; event = g.Window.PollEvent() {
+	for g.window.IsOpen() {
+		for event := g.window.PollEvent(); event != nil; event = g.window.PollEvent() {
 			switch et := event.(type) {
 			case sf.EventClosed:
-				g.Window.Close()
+				g.window.Close()
 			case sf.EventTextEntered:
 				g.handleInput(et.Char)
 			}
 		}
-		g.Window.Clear(sf.ColorBlack())
+		g.window.Clear(sf.ColorBlack())
 
-		for _, d := range g.Drawers {
+		g.window.SetView(g.gameView)
+		for _, d := range g.drawers {
 			g.Draw(d)
 		}
-		g.Window.Display()
+		g.window.Display()
 	}
 }
 
+func (g *Game) moveControl(e *Entity, x, y int) {
+	e.Move(x, y)
+	g.gameView.SetCenter(e.PosVector())
+}
 func (g *Game) handleInput(key rune) {
 	switch key {
 	case '2':
-		g.Player.Move(0, 1)
+		g.moveControl(g.player, 0, 1)
 	case '3':
-		g.Player.Move(1, 1)
+		g.moveControl(g.player, 1, 1)
 	case '6':
-		g.Player.Move(1, 0)
+		g.moveControl(g.player, 1, 0)
 	case '9':
-		g.Player.Move(1, -1)
+		g.moveControl(g.player, 1, -1)
 	case '8':
-		g.Player.Move(0, -1)
+		g.moveControl(g.player, 0, -1)
 	case '7':
-		g.Player.Move(-1, -1)
+		g.moveControl(g.player, -1, -1)
 	case '4':
-		g.Player.Move(-1, 0)
+		g.moveControl(g.player, -1, 0)
 	case '1':
-		g.Player.Move(-1, 1)
+		g.moveControl(g.player, -1, 1)
 	case 'Q':
-		g.Window.Close()
+		g.window.Close()
 	}
 }

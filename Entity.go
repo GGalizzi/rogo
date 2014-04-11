@@ -7,36 +7,40 @@ var (
 )
 
 type Entity struct {
-	Sprite *sf.Sprite
-	X      int
-	Y      int
+	sprite *sf.Sprite
+	x      int
+	y      int
 
-	Map *Map
+	area *Area
 }
 
-func NewEntity(spriteX, spriteY, posX, posY int, ma *Map) *Entity {
+func NewEntity(spriteX, spriteY, posX, posY int, a *Area) *Entity {
 	e := new(Entity)
 
-	e.X = posX
-	e.Y = posY
-	e.Map = ma
+	e.x = posX
+	e.y = posY
+	e.area = a
 
-	e.Sprite, _ = sf.NewSprite(EntitiesTexture)
+	e.sprite, _ = sf.NewSprite(EntitiesTexture)
 
-	e.Sprite.SetTextureRect(sf.IntRect{SpriteSize * spriteX, SpriteSize * spriteY, SpriteSize, SpriteSize})
-	e.Sprite.SetPosition(sf.Vector2f{float32(e.X * SpriteSize), float32(e.Y * SpriteSize)})
+	e.sprite.SetTextureRect(sf.IntRect{SpriteSize * spriteX, SpriteSize * spriteY, SpriteSize, SpriteSize})
+	e.sprite.SetPosition(sf.Vector2f{float32(e.x * SpriteSize), float32(e.y * SpriteSize)})
 
 	return e
 }
 
 func (e *Entity) Move(x, y int) {
-	if !e.Map.IsBlocked(e.X+x, e.Y+y) {
-		e.X += x
-		e.Y += y
-		e.Sprite.Move(sf.Vector2f{float32(SpriteSize * x), float32(SpriteSize * y)})
+	if !e.area.IsBlocked(e.x+x, e.y+y) {
+		e.x += x
+		e.y += y
+		e.sprite.Move(sf.Vector2f{float32(SpriteSize * x), float32(SpriteSize * y)})
 	}
 }
 
 func (e *Entity) Draw(w *sf.RenderWindow) {
-	e.Sprite.Draw(w, sf.DefaultRenderStates())
+	e.sprite.Draw(w, sf.DefaultRenderStates())
+}
+
+func (e *Entity) PosVector() sf.Vector2f {
+	return e.sprite.GetPosition()
 }
