@@ -41,6 +41,15 @@ func (e *Entity) Draw(w *sf.RenderWindow) {
 	e.sprite.Draw(w, sf.DefaultRenderStates())
 }
 
+func (e *Entity) Place(x, y int) {
+	e.x = x
+	e.y = y
+}
+
 func (e *Entity) PosVector() sf.Vector2f {
 	return e.sprite.GetPosition()
+}
+
+func (e *Entity) Position() sf.Vector2i {
+	return sf.Vector2i{e.x, e.y}
 }
