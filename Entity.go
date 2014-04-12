@@ -2,8 +2,6 @@ package main
 
 import (
 	sf "bitbucket.org/krepa098/gosfml2"
-	"encoding/json"
-	"os"
 )
 
 var (
@@ -44,21 +42,7 @@ func NewEntity(spriteX, spriteY, posX, posY int, a *Area) *Entity {
 
 func NewEntityFromFile(name string, x, y int, a *Area) *Entity {
 
-	file, err := os.Open("entities/" + name + ".ent")
-	if err != nil {
-		panic(err)
-	}
-	defer file.Close()
-
-	jParser := json.NewDecoder(file)
-
-	var d interface{}
-
-	if err = jParser.Decode(&d); err != nil {
-		panic(err)
-	}
-
-	data := d.(map[string]interface{})
+	data := ReadJson("entities", name)
 
 	e := new(Entity)
 
