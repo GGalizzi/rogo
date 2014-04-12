@@ -8,24 +8,6 @@ import (
 	"strings"
 )
 
-type Drawer interface {
-	Draw(*sf.RenderWindow)
-}
-
-func (g *Game) Draw(d Drawer) {
-	d.Draw(g.window)
-}
-
-type Game struct {
-	window *sf.RenderWindow
-	area   *Area
-	player *Entity
-
-	drawers []Drawer // Drawable entities on map.
-
-	gameView *sf.View
-}
-
 type Settings struct {
 	Resolution string `json:"resolution"`
 	SpriteSize int
@@ -60,6 +42,24 @@ func ReadSettings() Settings {
 	return s
 }
 
+type Drawer interface {
+	Draw(*sf.RenderWindow)
+}
+
+func (g *Game) Draw(d Drawer) {
+	d.Draw(g.window)
+}
+
+type Game struct {
+	window *sf.RenderWindow
+	area   *Area
+	player *Entity
+
+	entities []*Entity
+
+	gameView *sf.View
+}
+
 func NewGame() *Game {
 	g := new(Game)
 	g.window = sf.NewRenderWindow(sf.VideoMode{ReadSettings().resW, ReadSettings().resH, 32}, "GoSFMLike", sf.StyleDefault, sf.DefaultContextSettings())
@@ -67,7 +67,10 @@ func NewGame() *Game {
 	g.area = NewArea()
 	g.player = NewEntity(0, 0, 2, 2, g.area)
 
-	g.drawers = append(g.drawers, g.area, g.player)
+	for i := 0; i <= 3; i++ {
+		g.entities = append(g.entities, NewEntity(0, 1, 3, 1+i, g.area))
+	}
+	g.entities = append(g.entities, g.player)
 
 	g.gameView = sf.NewView()
 	g.gameView.SetCenter(g.player.PosVector())
@@ -90,9 +93,10 @@ func (g *Game) run() {
 		g.window.Clear(sf.ColorBlack())
 
 		g.window.SetView(g.gameView)
-		for _, d := range g.drawers {
+		for _, d := range g.entities {
 			g.Draw(d)
 		}
+		g.Draw(g.area)
 		g.window.Display()
 	}
 }
