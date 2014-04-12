@@ -69,7 +69,7 @@ func NewGame() *Game {
 	g.player = NewEntity(0, 0, 2, 2, g.area)
 
 	for i := 0; i <= 3; i++ {
-		g.entities = append(g.entities, NewEntity(0, 1, 3, 1+i, g.area))
+		g.entities = append(g.entities, NewEntityFromFile("orc", 3, 1+i, g.area))
 	}
 	g.entities = append(g.entities, g.player)
 

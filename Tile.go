@@ -17,8 +17,8 @@ func NewTile() *Tile {
 	return t
 }
 
-func (t *Tile) SetSprite(x, y int) {
-	t.Sprite.SetTextureRect(sf.IntRect{ReadSettings().SpriteSize * x, ReadSettings().SpriteSize * y, ReadSettings().SpriteSize, ReadSettings().SpriteSize})
+func (t *Tile) GetSprite() *sf.Sprite {
+	return t.Sprite
 }
 
 func (t *Tile) Draw(window *sf.RenderWindow, x, y int) {

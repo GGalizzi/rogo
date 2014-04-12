@@ -62,7 +62,7 @@ func (a *Area) placeTile(name string, x, y int) {
 
 	data := t.(map[string]interface{})
 	a.tiles[x+y*a.width].Blocks = data["blocks"].(bool)
-	a.tiles[x+y*a.width].SetSprite(int(data["spriteX"].(float64)), int(data["spriteY"].(float64)))
+	SetSprite(a.tiles[x+y*a.width], int(data["spriteX"].(float64)), int(data["spriteY"].(float64)))
 }
 
 func (a *Area) IsBlocked(x, y int) bool {

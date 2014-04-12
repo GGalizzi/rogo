@@ -1,0 +1,8 @@
+{
+  "spriteX": 0,
+  "spriteY": 1,
+  "type": "mob",
+  "hp": 30,
+  "atk": 5,
+  "def": 2
+}
