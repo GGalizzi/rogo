@@ -3,8 +3,6 @@ package main
 import sf "bitbucket.org/krepa098/gosfml2"
 
 type Tile struct {
-	x      int
-	y      int
 	Sprite *sf.Sprite
 
 	Blocks bool

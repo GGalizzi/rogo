@@ -20,6 +20,7 @@ func ReadSettings() Settings {
 	if err != nil {
 		panic(err)
 	}
+	defer file.Close()
 
 	jParser := json.NewDecoder(file)
 	var s Settings

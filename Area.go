@@ -1,6 +1,10 @@
 package main
 
-import sf "bitbucket.org/krepa098/gosfml2"
+import (
+	sf "bitbucket.org/krepa098/gosfml2"
+	"encoding/json"
+	"os"
+)
 
 type Area struct {
 	tiles  []*Tile
@@ -22,8 +26,7 @@ func NewArea() *Area {
 	for x := 0; x < a.width; x++ {
 		for y := 0; y < a.height; y++ {
 			if y == 0 || y == a.height-1 || x == 0 || x == a.width-1 {
-				a.tiles[x+y*a.width].SetSprite(0, 9)
-				a.tiles[x+y*a.width].Blocks = true
+				a.placeTile("wall", x, y)
 			} else {
 				a.tiles[x+y*a.width].Blocks = false
 			}
@@ -39,6 +42,27 @@ func (a *Area) Draw(window *sf.RenderWindow) {
 			a.tiles[x+y*a.width].Draw(window, x, y)
 		}
 	}
+}
+
+func (a *Area) placeTile(name string, x, y int) {
+	file, err := os.Open("tiles/" + name + ".tile")
+	if err != nil {
+		panic(err)
+	}
+
+	defer file.Close()
+
+	jParser := json.NewDecoder(file)
+
+	var t interface{}
+
+	if err = jParser.Decode(&t); err != nil {
+		panic(err)
+	}
+
+	data := t.(map[string]interface{})
+	a.tiles[x+y*a.width].Blocks = data["blocks"].(bool)
+	a.tiles[x+y*a.width].SetSprite(int(data["spriteX"].(float64)), int(data["spriteY"].(float64)))
 }
 
 func (a *Area) IsBlocked(x, y int) bool {

@@ -29,6 +29,8 @@ func NewEntity(spriteX, spriteY, posX, posY int, a *Area) *Entity {
 	return e
 }
 
+//Move should take ints between -1 and 1. That is, the direction where to move.
+//To specify any tile in the map Place should be used.
 func (e *Entity) Move(x, y int) {
 	if !e.area.IsBlocked(e.x+x, e.y+y) {
 		e.x += x
