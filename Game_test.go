@@ -2,7 +2,6 @@ package main
 
 import (
 	sf "bitbucket.org/krepa098/gosfml2"
-	"os"
 	"testing"
 )
 
@@ -42,7 +41,15 @@ func TestHandleInput(t *testing.T) {
 			assertMove(x+1, y-1)
 		}
 	}
+}
 
+func TestSettings(t *testing.T) {
+	if actual := ReadSettings().resW; actual != 840 {
+		t.Errorf("resW = %v, expected: %v", actual, 840)
+	}
+	if actual := ReadSettings().resH; actual != 780 {
+		t.Errorf("resH = %v, expected: %v", actual, 780)
+	}
 }
 
 func MockNewGame() *Game {
@@ -51,10 +58,4 @@ func MockNewGame() *Game {
 	g.player = NewEntity(0, 0, 12, 12, g.area)
 	g.gameView = sf.NewView()
 	return g
-}
-
-type MockWindow struct{}
-
-func (w *MockWindow) Close() {
-	os.Exit(0)
 }

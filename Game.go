@@ -2,6 +2,10 @@ package main
 
 import (
 	sf "bitbucket.org/krepa098/gosfml2"
+	"encoding/json"
+	"os"
+	"strconv"
+	"strings"
 )
 
 type Drawer interface {
@@ -22,9 +26,43 @@ type Game struct {
 	gameView *sf.View
 }
 
+type Settings struct {
+	Resolution string `json:"resolution"`
+	SpriteSize int
+	resW       uint
+	resH       uint
+}
+
+func ReadSettings() Settings {
+	file, err := os.Open("conf.json")
+	if err != nil {
+		panic(err)
+	}
+
+	jParser := json.NewDecoder(file)
+	var s Settings
+	if err = jParser.Decode(&s); err != nil {
+		panic(err)
+	}
+	rs := strings.Split(s.Resolution, "x")
+	resW, err := strconv.Atoi(rs[0])
+	s.resW = uint(resW)
+	if err != nil {
+		panic(s)
+	}
+
+	resH, err := strconv.Atoi(rs[1])
+	s.resH = uint(resH)
+	if err != nil {
+		panic(err)
+	}
+
+	return s
+}
+
 func NewGame() *Game {
 	g := new(Game)
-	g.window = sf.NewRenderWindow(sf.VideoMode{840, 780, 32}, "GoSFMLike", sf.StyleDefault, sf.DefaultContextSettings())
+	g.window = sf.NewRenderWindow(sf.VideoMode{ReadSettings().resW, ReadSettings().resH, 32}, "GoSFMLike", sf.StyleDefault, sf.DefaultContextSettings())
 
 	g.area = NewArea()
 	g.player = NewEntity(0, 0, 2, 2, g.area)
