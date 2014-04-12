@@ -71,12 +71,12 @@ func (e *Entity) GetSprite() *sf.Sprite {
 }
 
 //Move should take ints between -1 and 1. That is, the direction where to move.
-//To specify any tile in the map Place should be used.
+//To specify any tile in the map Place or SetPosition should be used.
 func (e *Entity) Move(x, y int) {
 	if !e.area.IsBlocked(e.x+x, e.y+y) {
-		e.x += x
-		e.y += y
-		e.sprite.Move(sf.Vector2f{float32(ReadSettings().SpriteSize * x), float32(ReadSettings().SpriteSize * y)})
+		dx := e.x + x
+		dy := e.y + y
+		e.Place(dx, dy)
 	}
 }
 
@@ -87,6 +87,7 @@ func (e *Entity) Draw(w *sf.RenderWindow) {
 func (e *Entity) Place(x, y int) {
 	e.x = x
 	e.y = y
+	e.sprite.SetPosition(sf.Vector2f{float32(ReadSettings().SpriteSize * e.x), float32(ReadSettings().SpriteSize * e.y)})
 }
 
 func (e *Entity) PosVector() sf.Vector2f {
@@ -95,4 +96,8 @@ func (e *Entity) PosVector() sf.Vector2f {
 
 func (e *Entity) Position() sf.Vector2i {
 	return sf.Vector2i{e.x, e.y}
+}
+
+func (e *Entity) SetPosition(pos sf.Vector2i) {
+	e.Place(pos.X, pos.Y)
 }

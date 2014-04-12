@@ -10,14 +10,16 @@ func TestHandleInput(t *testing.T) {
 	g = MockNewGame()
 
 	pos := g.player.Position
+	vec := g.player.PosVector
 	// ey, ex = Expected; cy,cx = Current/Actual coords, ox,oy = Original Coords before moving.
 	for r := '1'; r <= '9'; r++ {
 		x, y := pos().X, pos().Y
 		g.handleInput(r)
 
 		assertMove := func(ex, ey int) {
-			if cx, cy := pos().X, pos().Y; cx != ex || cy != ey {
-				t.Errorf("Position.Y = %v, want: %v", cy, ey)
+			ss := ReadSettings().SpriteSize
+			if cx, cy, vx, vy := pos().X, pos().Y, vec().X, vec().Y; cx != ex || cy != ey || vx != float32(ex*ss) || vy != float32(ey*ss) {
+				t.Errorf("Expected %v,%v;%v,%v; Got: %v,%v;%v,%v", ex, ey, ex*ss, ey*ss, cx, cy, vx, vy)
 			}
 		}
 		switch r {

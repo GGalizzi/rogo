@@ -4,6 +4,13 @@ import (
 	sf "bitbucket.org/krepa098/gosfml2"
 )
 
+type State int
+
+const (
+	PLAY State = iota
+	LOOK
+)
+
 type Drawer interface {
 	Draw(*sf.RenderWindow)
 }
@@ -16,18 +23,22 @@ type Game struct {
 	window *sf.RenderWindow
 	area   *Area
 	player *Entity
+	cursor *Entity
 
 	entities []*Entity
 
+	state    State
 	gameView *sf.View
 }
 
 func NewGame() *Game {
 	g := new(Game)
 	g.window = sf.NewRenderWindow(sf.VideoMode{ReadSettings().resW, ReadSettings().resH, 32}, "GoSFMLike", sf.StyleDefault, sf.DefaultContextSettings())
+	g.state = PLAY
 
 	g.area = NewArea()
 	g.player = NewEntity(0, 0, 2, 2, g.area)
+	g.cursor = NewEntity(0, 0, 2, 2, g.area)
 
 	for i := 0; i <= 3; i++ {
 		g.entities = append(g.entities, NewEntityFromFile("orc", 3, 1+i, g.area))
@@ -58,13 +69,22 @@ func (g *Game) run() {
 		for _, d := range g.entities {
 			g.Draw(d)
 		}
+		if g.state == LOOK {
+			g.Draw(g.cursor)
+		}
+
 		g.Draw(g.area)
 		g.window.Display()
 	}
 }
 
 func (g *Game) handleInput(key rune) {
-	inControl := g.player
+	var inControl *Entity
+	if g.state == PLAY {
+		inControl = g.player
+	} else if g.state == LOOK {
+		inControl = g.cursor
+	}
 
 	move := func(x, y int) {
 		inControl.Move(x, y)
@@ -88,6 +108,12 @@ func (g *Game) handleInput(key rune) {
 		move(-1, 0)
 	case '1':
 		move(-1, 1)
+	case 'x':
+		g.state = LOOK
+		g.cursor.SetPosition(g.player.Position())
+	case 27: //ESC key
+		g.state = PLAY
+		g.gameView.SetCenter(g.player.PosVector())
 	case 'Q':
 		g.window.Close()
 	}
