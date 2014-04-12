@@ -23,8 +23,8 @@ func NewEntity(spriteX, spriteY, posX, posY int, a *Area) *Entity {
 
 	e.sprite, _ = sf.NewSprite(EntitiesTexture)
 
-	e.sprite.SetTextureRect(sf.IntRect{SpriteSize * spriteX, SpriteSize * spriteY, SpriteSize, SpriteSize})
-	e.sprite.SetPosition(sf.Vector2f{float32(e.x * SpriteSize), float32(e.y * SpriteSize)})
+	e.sprite.SetTextureRect(sf.IntRect{ReadSettings().SpriteSize * spriteX, ReadSettings().SpriteSize * spriteY, ReadSettings().SpriteSize, ReadSettings().SpriteSize})
+	e.sprite.SetPosition(sf.Vector2f{float32(e.x * ReadSettings().SpriteSize), float32(e.y * ReadSettings().SpriteSize)})
 
 	return e
 }
@@ -33,7 +33,7 @@ func (e *Entity) Move(x, y int) {
 	if !e.area.IsBlocked(e.x+x, e.y+y) {
 		e.x += x
 		e.y += y
-		e.sprite.Move(sf.Vector2f{float32(SpriteSize * x), float32(SpriteSize * y)})
+		e.sprite.Move(sf.Vector2f{float32(ReadSettings().SpriteSize * x), float32(ReadSettings().SpriteSize * y)})
 	}
 }
 

@@ -4,10 +4,6 @@ import (
 	"runtime"
 )
 
-const SpriteSize = 16
-
-//var G *Game
-
 func init() {
 	runtime.LockOSThread()
 }

@@ -14,16 +14,16 @@ func NewTile() *Tile {
 	t := new(Tile)
 
 	t.Sprite, _ = sf.NewSprite(EntitiesTexture)
-	t.Sprite.SetTextureRect(sf.IntRect{SpriteSize * 2, SpriteSize * 2, SpriteSize, SpriteSize})
+	t.Sprite.SetTextureRect(sf.IntRect{ReadSettings().SpriteSize * 2, ReadSettings().SpriteSize * 2, ReadSettings().SpriteSize, ReadSettings().SpriteSize})
 
 	return t
 }
 
 func (t *Tile) SetSprite(x, y int) {
-	t.Sprite.SetTextureRect(sf.IntRect{SpriteSize * x, SpriteSize * y, SpriteSize, SpriteSize})
+	t.Sprite.SetTextureRect(sf.IntRect{ReadSettings().SpriteSize * x, ReadSettings().SpriteSize * y, ReadSettings().SpriteSize, ReadSettings().SpriteSize})
 }
 
 func (t *Tile) Draw(window *sf.RenderWindow, x, y int) {
-	t.Sprite.SetPosition(sf.Vector2f{float32(x * SpriteSize), float32(y * SpriteSize)})
+	t.Sprite.SetPosition(sf.Vector2f{float32(x * ReadSettings().SpriteSize), float32(y * ReadSettings().SpriteSize)})
 	t.Sprite.Draw(window, sf.DefaultRenderStates())
 }
