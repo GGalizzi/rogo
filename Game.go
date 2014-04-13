@@ -31,9 +31,11 @@ type Game struct {
 
 	entities []*Entity
 
-	state    State
-	gameView *sf.View
+	state State
 	Settings
+
+	gameView *sf.View
+	lookText *sf.Text
 }
 
 //NewGame initializes a Game struct.
@@ -47,8 +49,8 @@ func NewGame() *Game {
 	g.player = NewEntity(0, 0, 2, 2, g.area)
 	g.cursor = NewEntity(0, 0, 2, 2, g.area)
 
-	for i := 0; i <= 3; i++ {
-		g.entities = append(g.entities, NewEntityFromFile("orc", 3, 1+i, g.area))
+	for i := 0; i < 3; i++ {
+		g.entities = append(g.entities, NewEntityFromFile("orc", 3, 1, g.area))
 	}
 	g.entities = append(g.entities, g.player)
 
@@ -56,6 +58,13 @@ func NewGame() *Game {
 	g.gameView.SetCenter(g.player.PosVector())
 	g.gameView.SetSize(sf.Vector2f{150, 150})
 	g.gameView.SetViewport(sf.FloatRect{0, 0, .75, .75})
+
+	var err error
+	g.lookText, err = sf.NewText(Font)
+	if err != nil {
+		panic(err)
+	}
+	g.lookText.SetCharacterSize(12)
 
 	return g
 }
@@ -78,11 +87,18 @@ func (g *Game) run() {
 		}
 		if g.state == LOOK {
 			g.Draw(g.cursor)
+			g.lookText.Draw(g.window, sf.DefaultRenderStates())
 		}
 
 		g.Draw(g.area)
 		g.window.Display()
 	}
+
+}
+
+func (g *Game) describe(e *Entity) {
+	appendString(g.lookText, e.name)
+	g.lookText.SetPosition(e.PosVector())
 }
 
 func (g *Game) handleInput(key rune) {
@@ -97,16 +113,22 @@ func (g *Game) handleInput(key rune) {
 		cp := inControl.Position()
 		cp.X += x
 		cp.Y += y
+		describing := false
 		for _, e := range g.entities {
-			if ep := e.Position(); ep == cp && e.Mob != nil {
+			if ep := e.Position(); ep == cp {
 				subject := e
 				switch {
-				case inControl == g.player:
+				case e.Mob != nil && inControl == g.player:
 					inControl.attack(subject)
+					return
 				case inControl == g.cursor:
-					//TODO: Describe
+					if !describing {
+						g.lookText.SetString("")
+					}
+					g.describe(subject)
+					describing = true
+					break
 				}
-				return
 			}
 		}
 		inControl.Move(x, y)

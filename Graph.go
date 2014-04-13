@@ -2,11 +2,6 @@ package main
 
 import sf "bitbucket.org/krepa098/gosfml2"
 
-var (
-	//SpriteSheet is the file data which contains all the sprites that should be used.
-	SpriteSheet, _ = sf.NewTextureFromFile("ascii.png", nil)
-)
-
 //Graph represents an SFML sprite together with the size and texture image.
 type Graph struct {
 	*sf.Sprite

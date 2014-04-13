@@ -9,6 +9,8 @@ type Entity struct {
 	x int
 	y int
 
+	name string
+
 	area *Area
 	*Mob
 
@@ -36,14 +38,14 @@ func NewEntity(spriteX, spriteY, posX, posY int, a *Area) *Entity {
 	m.atk = 10
 	m.def = 5
 
-	return &Entity{x: posX, y: posY, area: a, sprite: sprite, Mob: m}
+	return &Entity{x: posX, y: posY, area: a, sprite: sprite, Mob: m, name: "You"}
 }
 
 //NewEntityFromFile initializes an Entity with the data stored in the given JSON file.
 func NewEntityFromFile(name string, x, y int, a *Area) *Entity {
 
 	data := ReadJSON("entities", name)
-	e := &Entity{x: x, y: y, area: a}
+	e := &Entity{x: x, y: y, area: a, name: name}
 
 	sx, sy := int(data["spriteX"].(float64)), int(data["spriteY"].(float64))
 

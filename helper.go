@@ -5,6 +5,14 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	sf "bitbucket.org/krepa098/gosfml2"
+)
+
+var (
+	//SpriteSheet is the file data which contains all the sprites that should be used.
+	SpriteSheet, _ = sf.NewTextureFromFile("ascii.png", nil)
+	Font, _        = sf.NewFontFromFile("font.ttf")
 )
 
 //ReadJSON reads the given json file in the given folder, and returns a map of any type, representing the JSON.
@@ -27,6 +35,15 @@ func ReadJSON(folder, name string) map[string]interface{} {
 	data := t.(map[string]interface{})
 
 	return data
+}
+
+func appendString(text *sf.Text, s string) {
+	switch text.GetString() {
+	case "":
+		text.SetString(s)
+	default:
+		text.SetString(text.GetString() + "\n" + s)
+	}
 }
 
 //Settings struct defines all the variable settings of the game, which are to be stored in a JSON file.

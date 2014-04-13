@@ -75,11 +75,43 @@ func TestStateCommands(t *testing.T) {
 	}
 }
 
+func TestLookCommand(t *testing.T) {
+	g := MockNewGame()
+	orc := NewEntityFromFile("orc", 12, 13, g.area)
+	g.entities = append(g.entities, orc)
+
+	g.handleInput('x')
+	g.handleInput('2')
+	if actual := g.lookText.GetString(); actual != "orc" {
+		t.Errorf("Expected: \"orc\", Got: \"%v\"", actual)
+	}
+	g.handleInput('8') // Go back up
+
+	newOrc := NewEntityFromFile("orc", 12, 13, g.area)
+	g.entities = append(g.entities, newOrc)
+	if l := len(g.entities); l != 2 {
+		t.Errorf("Length of g.entities should be 2. Got: %v", l)
+	}
+
+	// This tests that more than one ent is described, and also that the text is
+	//cleared after describing ents in one tile.
+	g.handleInput('2')
+	if actual := g.lookText.GetString(); actual != "orc\norc" {
+		t.Errorf("Expected: \"orc\", Got:\n \"%v\"", actual)
+	}
+}
+
 func MockNewGame() *Game {
 	g := new(Game)
 	g.area = NewArea()
 	g.player = NewEntity(0, 0, 12, 12, g.area)
 	g.cursor = NewEntity(0, 0, 12, 12, g.area)
 	g.gameView = sf.NewView()
+
+	var err error
+	g.lookText, err = sf.NewText(Font)
+	if err != nil {
+		panic(err)
+	}
 	return g
 }
