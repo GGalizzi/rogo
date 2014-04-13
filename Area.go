@@ -48,8 +48,9 @@ func (a *Area) Draw(window *sf.RenderWindow) {
 func (a *Area) placeTile(name string, x, y int) {
 	data := ReadJSON("tiles", name)
 
-	a.tiles[x+y*a.width].Blocks = data["blocks"].(bool)
-	SetSprite(a.tiles[x+y*a.width], int(data["spriteX"].(float64)), int(data["spriteY"].(float64)))
+	t := a.tiles[x+y*a.width]
+	t.Blocks = data["blocks"].(bool)
+	t.setSprite(int(data["spriteX"].(float64)), int(data["spriteY"].(float64)))
 }
 
 //IsBlocked checks if the tile in the given coords blocks movement.

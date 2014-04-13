@@ -4,11 +4,6 @@ import (
 	sf "bitbucket.org/krepa098/gosfml2"
 )
 
-var (
-	//EntitiesTexture is the file data which contains all the sprites that should be used.
-	EntitiesTexture, _ = sf.NewTextureFromFile("ascii.png", nil)
-)
-
 //Entity contains the data that represents any entity that can appear on an Area that is not a tile.
 type Entity struct {
 	x int
@@ -17,7 +12,7 @@ type Entity struct {
 	area *Area
 	*Mob
 
-	sprite *sf.Sprite
+	sprite *Graph
 }
 
 //Mob contains the data that an entity of type mob can use, meaning, any NPC.
@@ -31,13 +26,10 @@ type Mob struct {
 //NewEntity initializes an Entity with the given data.
 func NewEntity(spriteX, spriteY, posX, posY int, a *Area) *Entity {
 
-	sprite, err := sf.NewSprite(EntitiesTexture)
-	if err != nil {
-		panic(err)
-	}
+	sprite := NewGraph(spriteX, spriteY)
 
-	sprite.SetTextureRect(sf.IntRect{ReadSettings().SpriteSize * spriteX, ReadSettings().SpriteSize * spriteY, ReadSettings().SpriteSize, ReadSettings().SpriteSize})
-	sprite.SetPosition(sf.Vector2f{float32(posX * ReadSettings().SpriteSize), float32(posY * ReadSettings().SpriteSize)})
+	sprite.setSprite(spriteX, spriteY)
+	sprite.SetPosition(sf.Vector2f{float32(posX * sprite.size), float32(posY * sprite.size)})
 
 	return &Entity{x: posX, y: posY, area: a, sprite: sprite}
 }
@@ -50,9 +42,9 @@ func NewEntityFromFile(name string, x, y int, a *Area) *Entity {
 
 	sx, sy := int(data["spriteX"].(float64)), int(data["spriteY"].(float64))
 
-	e.sprite, _ = sf.NewSprite(EntitiesTexture)
-	SetSprite(e, sx, sy)
-	e.sprite.SetPosition(sf.Vector2f{float32(e.x * ReadSettings().SpriteSize), float32(e.y * ReadSettings().SpriteSize)})
+	//e.sprite, _ = sf.NewGraph(EntitiesTexture)
+	e.sprite = NewGraph(sx, sy)
+	e.sprite.SetPosition(sf.Vector2f{float32(e.x * e.sprite.size), float32(e.y * e.sprite.size)})
 
 	if data["type"].(string) == "mob" {
 		e.Mob = new(Mob)
@@ -62,11 +54,6 @@ func NewEntityFromFile(name string, x, y int, a *Area) *Entity {
 	}
 
 	return e
-}
-
-//Sprite to implements Spriter interface, returns the entities sprite.
-func (e *Entity) Sprite() *sf.Sprite {
-	return e.sprite
 }
 
 //Move should take ints between -1 and 1. That is, the direction where to move.
@@ -88,7 +75,7 @@ func (e *Entity) Draw(w *sf.RenderWindow) {
 func (e *Entity) Place(x, y int) {
 	e.x = x
 	e.y = y
-	e.sprite.SetPosition(sf.Vector2f{float32(ReadSettings().SpriteSize * e.x), float32(ReadSettings().SpriteSize * e.y)})
+	e.sprite.setPosition(x, y)
 }
 
 //PosVector returns the position of the sprite, without using the tiled coordinate system, but the position based on the pixels of the window.

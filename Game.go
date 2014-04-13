@@ -33,12 +33,14 @@ type Game struct {
 
 	state    State
 	gameView *sf.View
+	Settings
 }
 
 //NewGame initializes a Game struct.
 func NewGame() *Game {
 	g := new(Game)
-	g.window = sf.NewRenderWindow(sf.VideoMode{ReadSettings().resW, ReadSettings().resH, 32}, "GoSFMLike", sf.StyleDefault, sf.DefaultContextSettings())
+	g.Settings = readSettings()
+	g.window = sf.NewRenderWindow(sf.VideoMode{g.resW, g.resH, 32}, "GoSFMLike", sf.StyleDefault, sf.DefaultContextSettings())
 	g.state = PLAY
 
 	g.area = NewArea()

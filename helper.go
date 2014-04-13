@@ -5,19 +5,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
-
-	sf "bitbucket.org/krepa098/gosfml2"
 )
-
-//Spriter is implemented on any struct that has a sf.Sprite member.
-type Spriter interface {
-	Sprite() *sf.Sprite
-}
-
-//SetSprite sets the passed sprite to its correct sprite in the texture image.
-func SetSprite(obj Spriter, x, y int) {
-	obj.Sprite().SetTextureRect(sf.IntRect{ReadSettings().SpriteSize * x, ReadSettings().SpriteSize * y, ReadSettings().SpriteSize, ReadSettings().SpriteSize})
-}
 
 //ReadJSON reads the given json file in the given folder, and returns a map of any type, representing the JSON.
 func ReadJSON(folder, name string) map[string]interface{} {
@@ -49,8 +37,8 @@ type Settings struct {
 	resH       uint
 }
 
-//ReadSettings reads the settings file, and returns a struct with that data.
-func ReadSettings() Settings {
+//readSettings reads the settings file, and returns a struct with that data.
+func readSettings() Settings {
 	file, err := os.Open("conf.json")
 	if err != nil {
 		panic(err)

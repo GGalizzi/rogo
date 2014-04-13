@@ -1,8 +1,9 @@
 package main
 
 import (
-	sf "bitbucket.org/krepa098/gosfml2"
 	"testing"
+
+	sf "bitbucket.org/krepa098/gosfml2"
 )
 
 func TestHandleInput(t *testing.T) {
@@ -17,7 +18,7 @@ func TestHandleInput(t *testing.T) {
 		g.handleInput(r)
 
 		assertMove := func(ex, ey int) {
-			ss := ReadSettings().SpriteSize
+			ss := readSettings().SpriteSize
 			if cx, cy, vx, vy := pos().X, pos().Y, vec().X, vec().Y; cx != ex || cy != ey || vx != float32(ex*ss) || vy != float32(ey*ss) {
 				t.Errorf("Expected %v,%v;%v,%v; Got: %v,%v;%v,%v", ex, ey, ex*ss, ey*ss, cx, cy, vx, vy)
 			}
@@ -46,10 +47,10 @@ func TestHandleInput(t *testing.T) {
 }
 
 func TestSettings(t *testing.T) {
-	if actual := ReadSettings().resW; actual != 840 {
+	if actual := readSettings().resW; actual != 840 {
 		t.Errorf("resW = %v, expected: %v", actual, 840)
 	}
-	if actual := ReadSettings().resH; actual != 780 {
+	if actual := readSettings().resH; actual != 780 {
 		t.Errorf("resH = %v, expected: %v", actual, 780)
 	}
 }
