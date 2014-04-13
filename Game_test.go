@@ -99,6 +99,10 @@ func TestLookCommand(t *testing.T) {
 	if actual := g.lookText.GetString(); actual != "orc\norc" {
 		t.Errorf("Expected: \"orc\", Got:\n \"%v\"", actual)
 	}
+	g.handleInput('8')
+	if actual := g.lookText.GetString(); actual != "" {
+		t.Errorf("Expected empty string. Got:\n \"%v\"", actual)
+	}
 }
 
 func MockNewGame() *Game {

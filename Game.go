@@ -113,7 +113,9 @@ func (g *Game) handleInput(key rune) {
 		cp := inControl.Position()
 		cp.X += x
 		cp.Y += y
-		describing := false
+		if g.state == LOOK {
+			g.lookText.SetString("")
+		}
 		for _, e := range g.entities {
 			if ep := e.Position(); ep == cp {
 				subject := e
@@ -122,11 +124,7 @@ func (g *Game) handleInput(key rune) {
 					inControl.attack(subject)
 					return
 				case inControl == g.cursor:
-					if !describing {
-						g.lookText.SetString("")
-					}
 					g.describe(subject)
-					describing = true
 					break
 				}
 			}
