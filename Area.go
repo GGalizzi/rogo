@@ -4,20 +4,21 @@ import (
 	sf "bitbucket.org/krepa098/gosfml2"
 )
 
+//Area contains data that relates to an area, a map, a dungeon. Basically, a set of tiles.
 type Area struct {
-	tiles  []*Tile
 	width  int
 	height int
+
+	tiles []*Tile
 }
 
+//NewArea initializes an Area struct with a basic map.
 func NewArea() *Area {
-	a := new(Area)
-	a.width = 50
-	a.height = 20
+	a := &Area{width: 50, height: 20}
 
 	a.tiles = make([]*Tile, a.height*a.width)
 
-	for i, _ := range a.tiles {
+	for i := range a.tiles {
 		a.tiles[i] = NewTile()
 	}
 
@@ -34,6 +35,7 @@ func NewArea() *Area {
 	return a
 }
 
+//Draw draws all the tiles that make the area.
 func (a *Area) Draw(window *sf.RenderWindow) {
 	for x := 0; x < a.width; x++ {
 		for y := 0; y < a.height; y++ {
@@ -42,13 +44,15 @@ func (a *Area) Draw(window *sf.RenderWindow) {
 	}
 }
 
+//placeTile places the given tile by reading from the JSON that contains its data.
 func (a *Area) placeTile(name string, x, y int) {
-	data := ReadJson("tiles", name)
+	data := ReadJSON("tiles", name)
 
 	a.tiles[x+y*a.width].Blocks = data["blocks"].(bool)
 	SetSprite(a.tiles[x+y*a.width], int(data["spriteX"].(float64)), int(data["spriteY"].(float64)))
 }
 
+//IsBlocked checks if the tile in the given coords blocks movement.
 func (a *Area) IsBlocked(x, y int) bool {
 	return a.tiles[x+y*a.width].Blocks
 }

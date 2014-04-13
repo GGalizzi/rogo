@@ -1,22 +1,26 @@
 package main
 
 import (
-	sf "bitbucket.org/krepa098/gosfml2"
 	"encoding/json"
 	"os"
 	"strconv"
 	"strings"
+
+	sf "bitbucket.org/krepa098/gosfml2"
 )
 
+//Spriter is implemented on any struct that has a sf.Sprite member.
 type Spriter interface {
-	GetSprite() *sf.Sprite
+	Sprite() *sf.Sprite
 }
 
+//SetSprite sets the passed sprite to its correct sprite in the texture image.
 func SetSprite(obj Spriter, x, y int) {
-	obj.GetSprite().SetTextureRect(sf.IntRect{ReadSettings().SpriteSize * x, ReadSettings().SpriteSize * y, ReadSettings().SpriteSize, ReadSettings().SpriteSize})
+	obj.Sprite().SetTextureRect(sf.IntRect{ReadSettings().SpriteSize * x, ReadSettings().SpriteSize * y, ReadSettings().SpriteSize, ReadSettings().SpriteSize})
 }
 
-func ReadJson(folder, name string) map[string]interface{} {
+//ReadJSON reads the given json file in the given folder, and returns a map of any type, representing the JSON.
+func ReadJSON(folder, name string) map[string]interface{} {
 	file, err := os.Open(folder + "/" + name + ".json")
 	if err != nil {
 		panic(err)
@@ -37,6 +41,7 @@ func ReadJson(folder, name string) map[string]interface{} {
 	return data
 }
 
+//Settings struct defines all the variable settings of the game, which are to be stored in a JSON file.
 type Settings struct {
 	Resolution string `json:"resolution"`
 	SpriteSize int
@@ -44,6 +49,7 @@ type Settings struct {
 	resH       uint
 }
 
+//ReadSettings reads the settings file, and returns a struct with that data.
 func ReadSettings() Settings {
 	file, err := os.Open("conf.json")
 	if err != nil {

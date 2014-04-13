@@ -1,24 +1,28 @@
 package main
 
-import (
-	sf "bitbucket.org/krepa098/gosfml2"
-)
+import sf "bitbucket.org/krepa098/gosfml2"
 
+//State represents the state of the game (i.e: playing, in inventory, dead, in the menu, etc)
 type State int
 
 const (
+	//PLAY state means the player is in control of its character.
 	PLAY State = iota
+	//LOOK state means the player is using the look command.
 	LOOK
 )
 
+//Drawer is implemented on types that can be drawn on the window.
 type Drawer interface {
 	Draw(*sf.RenderWindow)
 }
 
+//Draw draws any drawer on the window.
 func (g *Game) Draw(d Drawer) {
 	d.Draw(g.window)
 }
 
+//Game contains the base data of the game, from the window, to its current entities and area currently in memory.
 type Game struct {
 	window *sf.RenderWindow
 	area   *Area
@@ -31,6 +35,7 @@ type Game struct {
 	gameView *sf.View
 }
 
+//NewGame initializes a Game struct.
 func NewGame() *Game {
 	g := new(Game)
 	g.window = sf.NewRenderWindow(sf.VideoMode{ReadSettings().resW, ReadSettings().resH, 32}, "GoSFMLike", sf.StyleDefault, sf.DefaultContextSettings())

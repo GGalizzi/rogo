@@ -32,7 +32,7 @@ func PrepareArea() *Area {
 	a.height = 20
 	a.tiles = make([]*Tile, a.height*a.width)
 
-	for i, _ := range a.tiles {
+	for i := range a.tiles {
 		a.tiles[i] = NewTile()
 	}
 
