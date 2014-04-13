@@ -26,8 +26,6 @@ func NewArea() *Area {
 		for y := 0; y < a.height; y++ {
 			if y == 0 || y == a.height-1 || x == 0 || x == a.width-1 {
 				a.placeTile("wall", x, y)
-			} else {
-				a.tiles[x+y*a.width].Blocks = false
 			}
 		}
 	}

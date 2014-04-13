@@ -34,7 +34,7 @@ func NewEntity(spriteX, spriteY, posX, posY int, a *Area) *Entity {
 	return &Entity{x: posX, y: posY, area: a, sprite: sprite}
 }
 
-//NewEntityFromFile initializes an Entity with the data stored in the JSON file given.
+//NewEntityFromFile initializes an Entity with the data stored in the given JSON file.
 func NewEntityFromFile(name string, x, y int, a *Area) *Entity {
 
 	data := ReadJSON("entities", name)
