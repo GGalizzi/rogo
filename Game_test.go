@@ -55,10 +55,31 @@ func TestSettings(t *testing.T) {
 	}
 }
 
+func TestStateCommands(t *testing.T) {
+	g := MockNewGame()
+
+	g.handleInput('x')
+	if state := g.state; state != LOOK {
+		t.Errorf("Expected: %v, Got: %v", state, LOOK)
+	}
+	g.handleInput('2')
+	ePPos := sf.Vector2i{12, 12}
+	eCPos := sf.Vector2i{12, 13}
+	if pPos, cPos := g.player.Position(), g.cursor.Position(); pPos != ePPos || cPos != eCPos {
+		t.Errorf("PlayerPos: %v,%v. CursorPos: %v,%v. Player should be 12,12 Cursor should be 12,13", pPos.X, pPos.Y, cPos.X, cPos.Y)
+	}
+
+	g.handleInput(27)
+	if state := g.state; state != PLAY {
+		t.Errorf("Expected: %v, Got: %v", state, PLAY)
+	}
+}
+
 func MockNewGame() *Game {
 	g := new(Game)
 	g.area = NewArea()
 	g.player = NewEntity(0, 0, 12, 12, g.area)
+	g.cursor = NewEntity(0, 0, 12, 12, g.area)
 	g.gameView = sf.NewView()
 	return g
 }
