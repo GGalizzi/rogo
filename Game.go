@@ -94,6 +94,21 @@ func (g *Game) handleInput(key rune) {
 	}
 
 	move := func(x, y int) {
+		cp := inControl.Position()
+		cp.X += x
+		cp.Y += y
+		for _, e := range g.entities {
+			if ep := e.Position(); ep == cp && e.Mob != nil {
+				subject := e
+				switch {
+				case inControl == g.player:
+					inControl.attack(subject)
+				case inControl == g.cursor:
+					//Describe
+				}
+				return
+			}
+		}
 		inControl.Move(x, y)
 		g.gameView.SetCenter(inControl.PosVector())
 	}

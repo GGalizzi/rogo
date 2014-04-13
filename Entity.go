@@ -31,7 +31,12 @@ func NewEntity(spriteX, spriteY, posX, posY int, a *Area) *Entity {
 	sprite.setSprite(spriteX, spriteY)
 	sprite.SetPosition(sf.Vector2f{float32(posX * sprite.size), float32(posY * sprite.size)})
 
-	return &Entity{x: posX, y: posY, area: a, sprite: sprite}
+	m := new(Mob)
+	m.maxhp, m.curhp = 120, 120
+	m.atk = 10
+	m.def = 5
+
+	return &Entity{x: posX, y: posY, area: a, sprite: sprite, Mob: m}
 }
 
 //NewEntityFromFile initializes an Entity with the data stored in the given JSON file.
@@ -46,6 +51,7 @@ func NewEntityFromFile(name string, x, y int, a *Area) *Entity {
 	e.sprite = NewGraph(sx, sy)
 	e.sprite.SetPosition(sf.Vector2f{float32(e.x * e.sprite.size), float32(e.y * e.sprite.size)})
 
+	e.Mob = nil
 	if data["type"].(string) == "mob" {
 		e.Mob = new(Mob)
 		e.maxhp, e.curhp = int(data["hp"].(float64)), int(data["hp"].(float64))
@@ -64,6 +70,19 @@ func (e *Entity) Move(x, y int) {
 		dy := e.y + y
 		e.Place(dx, dy)
 	}
+}
+
+func (attacker *Entity) attack(defender *Entity) {
+	defender.curhp -= attacker.atk - defender.def
+	if defender.curhp <= 0 {
+		defender.die()
+	}
+}
+
+func (e *Entity) die() {
+	e.Mob = nil
+	e.sprite.SetColor(sf.ColorRed())
+	//Make him an item.
 }
 
 //Draw draws the sprite on the window.
