@@ -82,7 +82,7 @@ func (attacker *Entity) attack(defender *Entity) {
 func (e *Entity) die() {
 	e.Mob = nil
 	e.sprite.SetColor(sf.ColorRed())
-	//Make him an item.
+	//TODO: make him an item.
 }
 
 //Draw draws the sprite on the window.

@@ -104,7 +104,7 @@ func (g *Game) handleInput(key rune) {
 				case inControl == g.player:
 					inControl.attack(subject)
 				case inControl == g.cursor:
-					//Describe
+					//TODO: Describe
 				}
 				return
 			}
