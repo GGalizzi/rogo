@@ -1,7 +1,15 @@
 package main
 
-import (
-	sf "bitbucket.org/krepa098/gosfml2"
+import sf "bitbucket.org/krepa098/gosfml2"
+
+//Faction represents the different groups of factions an NPC or player can belong to.
+type Faction string
+
+const (
+	//ORCS faction belongs to any orc.
+	ORCS Faction = "orcs"
+	//PLAYER faction represents allies to the player, and the player itself.
+	PLAYER Faction = "player"
 )
 
 //Entity contains the data that represents any entity that can appear on an Area that is not a tile.
@@ -23,6 +31,8 @@ type Mob struct {
 	curhp int
 	atk   int
 	def   int
+
+	faction Faction
 }
 
 //NewEntity initializes an Entity with the given data.
@@ -37,6 +47,7 @@ func NewEntity(name string, spriteX, spriteY, posX, posY int, a *Area) *Entity {
 	m.maxhp, m.curhp = 820, 820
 	m.atk = 10
 	m.def = 0
+	m.faction = PLAYER
 
 	return &Entity{x: posX, y: posY, area: a, sprite: sprite, Mob: m, name: name}
 }
@@ -59,6 +70,7 @@ func NewEntityFromFile(name string, x, y int, a *Area) *Entity {
 		e.maxhp, e.curhp = int(data["hp"].(float64)), int(data["hp"].(float64))
 		e.atk = int(data["atk"].(float64))
 		e.def = int(data["def"].(float64))
+		e.faction = Faction(data["faction"].(string))
 	}
 
 	return e
@@ -114,9 +126,11 @@ func (e *Entity) moveTowards(oe *Entity, g *Game) {
 }
 
 func (attacker *Entity) attack(defender *Entity) {
-	defender.curhp -= attacker.atk - defender.def
-	if defender.curhp <= 0 {
-		defender.die()
+	if attacker.faction != defender.faction {
+		defender.curhp -= attacker.atk - defender.def
+		if defender.curhp <= 0 {
+			defender.die()
+		}
 	}
 }
 
