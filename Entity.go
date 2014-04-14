@@ -74,6 +74,27 @@ func (e *Entity) Move(x, y int) {
 	}
 }
 
+func (e *Entity) moveTowards(oe *Entity) {
+	ep := e.Position()   //Entity Position
+	oep := oe.Position() //Other Entity Position.
+
+	dx, dy := 0, 0
+
+	if ep.X < oep.X {
+		dx = 1
+	} else {
+		dx = -1
+	}
+
+	if ep.Y < oep.Y {
+		dy = 1
+	} else {
+		dy = -1
+	}
+
+	e.Move(dx, dy)
+}
+
 func (attacker *Entity) attack(defender *Entity) {
 	defender.curhp -= attacker.atk - defender.def
 	if defender.curhp <= 0 {

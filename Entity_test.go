@@ -16,3 +16,25 @@ func TestNewMobFromFile(t *testing.T) {
 		t.Errorf("Expected: maxhp: 30, curhp: 30, atk: 5, def: 2; Got: maxhp: %v, curhp: %v, atk: %v, def: %v", maxhp, curhp, atk, def)
 	}
 }
+
+func TestBasicAi(t *testing.T) {
+	a := PrepareArea()
+	e := NewEntityFromFile("orc", 3, 3, a)
+	g := MockNewGame()
+
+	op := e.Position()
+	opv := e.PosVector()
+
+	g.entities = append(g.entities, e, g.player)
+
+	g.processAI(e)
+
+	if ap, apv := e.Position(), e.PosVector(); ap == op || opv == apv {
+		t.Errorf("Expected orc to move from 3,3 -> %v | Original Vector:%v should != Actual Vector: %v", ap, opv, apv)
+	}
+
+	if ap := e.Position(); ap.X != 4 || ap.Y != 4 {
+		t.Errorf("Expected orc to move one tile only. Actual: %v", ap)
+	}
+
+}

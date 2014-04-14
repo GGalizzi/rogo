@@ -46,11 +46,11 @@ func NewGame() *Game {
 	g.state = PLAY
 
 	g.area = NewArea()
-	g.player = NewEntity(0, 0, 2, 2, g.area)
+	g.player = NewEntity(0, 0, 12, 2, g.area)
 	g.cursor = NewEntity(0, 0, 2, 2, g.area)
 
 	for i := 0; i < 3; i++ {
-		g.entities = append(g.entities, NewEntityFromFile("orc", 3, 1, g.area))
+		g.entities = append(g.entities, NewEntityFromFile("orc", 3+i, 1, g.area))
 	}
 	g.entities = append(g.entities, g.player)
 
@@ -70,19 +70,25 @@ func NewGame() *Game {
 }
 
 func (g *Game) run() {
+
 	for g.window.IsOpen() {
+
+		wait := true
 		for event := g.window.PollEvent(); event != nil; event = g.window.PollEvent() {
 			switch et := event.(type) {
 			case sf.EventClosed:
 				g.window.Close()
 			case sf.EventTextEntered:
-				g.handleInput(et.Char)
+				wait = g.handleInput(et.Char)
 			}
 		}
 		g.window.Clear(sf.ColorBlack())
 
 		g.window.SetView(g.gameView)
 		for _, d := range g.entities {
+			if !wait && d != g.player && d.Mob != nil {
+				g.processAI(d)
+			}
 			g.Draw(d)
 		}
 		if g.state == LOOK {
@@ -96,12 +102,17 @@ func (g *Game) run() {
 
 }
 
+func (g *Game) processAI(e *Entity) {
+	e.moveTowards(g.player)
+}
+
 func (g *Game) describe(e *Entity) {
 	appendString(g.lookText, e.name)
 	g.lookText.SetPosition(e.PosVector())
 }
 
-func (g *Game) handleInput(key rune) {
+func (g *Game) handleInput(key rune) (wait bool) {
+	wait = true
 	var inControl *Entity
 	if g.state == PLAY {
 		inControl = g.player
@@ -122,6 +133,7 @@ func (g *Game) handleInput(key rune) {
 				switch {
 				case e.Mob != nil && inControl == g.player:
 					inControl.attack(subject)
+					wait = false
 					return
 				case inControl == g.cursor:
 					g.describe(subject)
@@ -130,6 +142,9 @@ func (g *Game) handleInput(key rune) {
 			}
 		}
 		inControl.Move(x, y)
+		if g.state == PLAY {
+			wait = false
+		}
 		g.gameView.SetCenter(inControl.PosVector())
 	}
 
@@ -151,12 +166,16 @@ func (g *Game) handleInput(key rune) {
 	case '1':
 		move(-1, 1)
 	case 'x':
+		wait = false
 		g.state = LOOK
 		g.cursor.SetPosition(g.player.Position())
 	case 27: //ESC key
+		wait = false
 		g.state = PLAY
 		g.gameView.SetCenter(g.player.PosVector())
 	case 'Q':
 		g.window.Close()
 	}
+
+	return
 }
