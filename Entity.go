@@ -1,6 +1,10 @@
 package main
 
-import sf "bitbucket.org/krepa098/gosfml2"
+import (
+	"fmt"
+
+	sf "bitbucket.org/krepa098/gosfml2"
+)
 
 //Faction represents the different groups of factions an NPC or player can belong to.
 type Faction string
@@ -21,16 +25,17 @@ type Entity struct {
 
 	area *Area
 	*Mob
+	*Item
 
 	sprite *Graph
 }
 
 //Mob contains the data that an entity of type mob can use, meaning, any NPC.
 type Mob struct {
-	maxhp uint
-	curhp uint
-	atk   uint
-	def   uint
+	maxhp int
+	curhp int
+	atk   int
+	def   int
 
 	faction []Faction
 }
@@ -44,9 +49,9 @@ func NewEntity(name string, spriteX, spriteY, posX, posY int, a *Area) *Entity {
 	sprite.SetPosition(sf.Vector2f{float32(posX * sprite.size), float32(posY * sprite.size)})
 
 	m := new(Mob)
-	m.maxhp, m.curhp = 820, 820
+	m.maxhp, m.curhp = 30, 30
 	m.atk = 10
-	m.def = 0
+	m.def = 4
 	m.faction = append(m.faction, PLAYER)
 
 	return &Entity{x: posX, y: posY, area: a, sprite: sprite, Mob: m, name: name}
@@ -67,15 +72,19 @@ func NewEntityFromFile(name string, x, y int, a *Area) *Entity {
 	e.Mob = nil
 	if data["type"].(string) == "mob" {
 		e.Mob = new(Mob)
-		e.maxhp, e.curhp = uint(data["hp"].(float64)), uint(data["hp"].(float64))
-		e.atk = uint(data["atk"].(float64))
-		e.def = uint(data["def"].(float64))
+		e.maxhp, e.curhp = int(data["hp"].(float64)), int(data["hp"].(float64))
+		e.atk = int(data["atk"].(float64))
+		e.def = int(data["def"].(float64))
 
 		e.faction = make([]Faction, 1)
 		//e.faction = append(e.faction, data["faction"].([]interface{})...)
 		for _, v := range data["faction"].([]interface{}) {
 			e.faction = append(e.faction, Faction(v.(string)))
 		}
+	}
+	e.Item = nil
+	if data["type"].(string) == "item" {
+		e.Item = new(Item)
 	}
 
 	return e
@@ -134,17 +143,20 @@ func (e *Entity) moveTowards(oe *Entity, g *Game) {
 }
 
 func (attacker *Entity) attack(defender *Entity) {
+	fmt.Printf("%v attacks %v\n", *attacker.Mob, *defender.Mob)
 	if !attacker.isAlliedWith(defender) {
 		curhp := defender.curhp
 		afterhp := curhp - (attacker.atk - defender.def)
+		if afterhp <= 0 {
+			defender.die()
+			return
+		}
 		if afterhp > curhp {
 			defender.curhp = curhp
 			return
 		}
 		defender.curhp = afterhp
-		if defender.curhp <= 0 {
-			defender.die()
-		}
+
 	}
 }
 

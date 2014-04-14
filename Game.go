@@ -56,6 +56,7 @@ func NewGame() *Game {
 	for i := 0; i < 1; i++ {
 		g.entities = append(g.entities, NewEntityFromFile("orc", 3+i, 1, g.area))
 	}
+	g.entities = append(g.entities, NewEntityFromFile("potion", 4, 4, g.area))
 	g.entities = append(g.entities, g.player)
 
 	g.gameView = sf.NewView()

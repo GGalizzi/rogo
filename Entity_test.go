@@ -56,7 +56,6 @@ func TestBasicAi(t *testing.T) {
 	if aph >= oph {
 		t.Errorf("Expected player to lose health. Before Process: %v, After Process: %v . atk(%v) - def(%v)", oph, aph, e.atk, g.player.def)
 	}
-
 }
 
 func TestFactionAttack(t *testing.T) {
@@ -74,4 +73,24 @@ func TestFactionAttack(t *testing.T) {
 	if actual := orc2.curhp; actual != orc2hp {
 		t.Errorf("Mobs within the same faction shouldn't hit each other when moving. Pre-HP: %v, Post-HP: %v", orc2hp, actual)
 	}
+}
+
+func TestPlayerAttack(t *testing.T) {
+	a := PrepareArea()
+
+	g := MockNewGame()
+
+	g.player.SetPosition(sf.Vector2i{3, 3})
+	orc := NewEntityFromFile("orc", 3, 4, a)
+
+	g.entities = append(g.entities, g.player, orc)
+
+	prevHP := orc.curhp
+	g.handleInput('2')
+	postHP := orc.curhp
+
+	if postHP >= prevHP {
+		t.Errorf("Expected orc to lose health. Before player move: %v, After: %v | %v vs. %v", prevHP, postHP, g.player, orc)
+	}
+	t.Logf("Orcs health is reduced when player bumps into him. Orc health before: %v, after: %v", prevHP, postHP)
 }
