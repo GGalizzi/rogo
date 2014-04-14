@@ -1,6 +1,10 @@
 package main
 
-import "testing"
+import (
+	"testing"
+
+	sf "bitbucket.org/krepa098/gosfml2"
+)
 
 func TestNewMobFromFile(t *testing.T) {
 	a := PrepareArea()
@@ -37,4 +41,18 @@ func TestBasicAi(t *testing.T) {
 		t.Errorf("Expected orc to move one tile only. Actual: %v", ap)
 	}
 
+	g.player.SetPosition(sf.Vector2i{5, 5})
+
+	op = e.Position()
+	oph := g.player.curhp
+	g.processAI(e)
+	aph := g.player.curhp
+
+	if ap := e.Position(); ap.X == 5 || ap.Y == 5 {
+		t.Errorf("Expected orc not to move, should be attacking. Actual Pos: %v", ap)
+	}
+
+	if oph == aph {
+		t.Errorf("Expected player to lose health. Before Process: %v, After Process: %v", oph, aph)
+	}
 }

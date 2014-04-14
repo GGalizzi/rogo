@@ -36,7 +36,7 @@ func NewEntity(spriteX, spriteY, posX, posY int, a *Area) *Entity {
 	m := new(Mob)
 	m.maxhp, m.curhp = 120, 120
 	m.atk = 10
-	m.def = 5
+	m.def = 0
 
 	return &Entity{x: posX, y: posY, area: a, sprite: sprite, Mob: m, name: "You"}
 }
@@ -90,6 +90,11 @@ func (e *Entity) moveTowards(oe *Entity) {
 		dy = 1
 	} else {
 		dy = -1
+	}
+
+	if ep.X+dx == oep.X && ep.Y+dy == oep.Y {
+		e.attack(oe)
+		return
 	}
 
 	e.Move(dx, dy)
