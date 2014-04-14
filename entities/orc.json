@@ -5,5 +5,5 @@
   "hp": 30,
   "atk": 5,
   "def": 2,
-  "faction": "orcs"
+  "faction": [ "orcs" ]
 }

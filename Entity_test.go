@@ -45,6 +45,7 @@ func TestBasicAi(t *testing.T) {
 
 	op = e.Position()
 	oph := g.player.curhp
+	g.player.def = 0
 	g.processAI(e)
 	aph := g.player.curhp
 
@@ -52,9 +53,10 @@ func TestBasicAi(t *testing.T) {
 		t.Errorf("Expected orc not to move, should be attacking. Actual Pos: %v", ap)
 	}
 
-	if oph == aph {
-		t.Errorf("Expected player to lose health. Before Process: %v, After Process: %v", oph, aph)
+	if aph >= oph {
+		t.Errorf("Expected player to lose health. Before Process: %v, After Process: %v . atk(%v) - def(%v)", oph, aph, e.atk, g.player.def)
 	}
+
 }
 
 func TestFactionAttack(t *testing.T) {
