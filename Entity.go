@@ -26,7 +26,7 @@ type Mob struct {
 }
 
 //NewEntity initializes an Entity with the given data.
-func NewEntity(spriteX, spriteY, posX, posY int, a *Area) *Entity {
+func NewEntity(name string, spriteX, spriteY, posX, posY int, a *Area) *Entity {
 
 	sprite := NewGraph(spriteX, spriteY)
 
@@ -34,11 +34,11 @@ func NewEntity(spriteX, spriteY, posX, posY int, a *Area) *Entity {
 	sprite.SetPosition(sf.Vector2f{float32(posX * sprite.size), float32(posY * sprite.size)})
 
 	m := new(Mob)
-	m.maxhp, m.curhp = 120, 120
+	m.maxhp, m.curhp = 820, 820
 	m.atk = 10
 	m.def = 0
 
-	return &Entity{x: posX, y: posY, area: a, sprite: sprite, Mob: m, name: "You"}
+	return &Entity{x: posX, y: posY, area: a, sprite: sprite, Mob: m, name: name}
 }
 
 //NewEntityFromFile initializes an Entity with the data stored in the given JSON file.
@@ -66,15 +66,27 @@ func NewEntityFromFile(name string, x, y int, a *Area) *Entity {
 
 //Move should take ints between -1 and 1. That is, the direction where to move.
 //To specify any tile in the map Place or SetPosition should be used.
-func (e *Entity) Move(x, y int) {
+func (e *Entity) Move(x, y int, g *Game) {
+
+	dx := e.x + x
+	dy := e.y + y
+
+	for _, oe := range g.entities {
+		if oe.Mob != nil && dx == oe.Position().X && dy == oe.Position().Y {
+			if e.name == "cursor" {
+				g.describe(oe)
+			} else {
+				e.attack(oe)
+				return
+			}
+		}
+	}
 	if !e.area.IsBlocked(e.x+x, e.y+y) {
-		dx := e.x + x
-		dy := e.y + y
 		e.Place(dx, dy)
 	}
 }
 
-func (e *Entity) moveTowards(oe *Entity) {
+func (e *Entity) moveTowards(oe *Entity, g *Game) {
 	ep := e.Position()   //Entity Position
 	oep := oe.Position() //Other Entity Position.
 
@@ -98,12 +110,7 @@ func (e *Entity) moveTowards(oe *Entity) {
 		dy = 0
 	}
 
-	if ep.X+dx == oep.X && ep.Y+dy == oep.Y {
-		e.attack(oe)
-		return
-	}
-
-	e.Move(dx, dy)
+	e.Move(dx, dy, g)
 }
 
 func (attacker *Entity) attack(defender *Entity) {

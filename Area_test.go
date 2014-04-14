@@ -17,9 +17,9 @@ func TestMoveToBlockedTile(t *testing.T) {
 
 	a.placeTile("wall", 3, 3)
 
-	p := NewEntity(0, 0, 2, 3, a)
+	p := NewEntity("player", 0, 0, 2, 3, a)
 
-	p.Move(1, 0)
+	p.Move(1, 0, MockNewGame())
 
 	if pos := p.Position(); pos.X == 3 && pos.Y == 3 {
 		t.Errorf("Position should have remained 2,3. Pos:%v,%v", pos.X, pos.Y)

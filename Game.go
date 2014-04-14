@@ -50,8 +50,8 @@ func NewGame() *Game {
 	g.state = PLAY
 
 	g.area = NewArea()
-	g.player = NewEntity(0, 0, 12, 2, g.area)
-	g.cursor = NewEntity(0, 0, 2, 2, g.area)
+	g.player = NewEntity("player", 0, 0, 12, 2, g.area)
+	g.cursor = NewEntity("cursor", 0, 0, 2, 2, g.area)
 
 	for i := 0; i < 3; i++ {
 		g.entities = append(g.entities, NewEntityFromFile("orc", 3+i, 1, g.area))
@@ -112,7 +112,7 @@ func (g *Game) run() {
 }
 
 func (g *Game) processAI(e *Entity) {
-	e.moveTowards(g.player)
+	e.moveTowards(g.player, g)
 }
 
 func (g *Game) describe(e *Entity) {
@@ -130,27 +130,10 @@ func (g *Game) handleInput(key rune) (wait bool) {
 	}
 
 	move := func(x, y int) {
-		cp := inControl.Position()
-		cp.X += x
-		cp.Y += y
 		if g.state == LOOK {
 			g.lookText.SetString("")
 		}
-		for _, e := range g.entities {
-			if ep := e.Position(); ep == cp {
-				subject := e
-				switch {
-				case e.Mob != nil && inControl == g.player:
-					inControl.attack(subject)
-					wait = false
-					return
-				case inControl == g.cursor:
-					g.describe(subject)
-					break
-				}
-			}
-		}
-		inControl.Move(x, y)
+		inControl.Move(x, y, g)
 		if g.state == PLAY {
 			wait = false
 		}
@@ -174,6 +157,8 @@ func (g *Game) handleInput(key rune) (wait bool) {
 		move(-1, 0)
 	case '1':
 		move(-1, 1)
+	case '5':
+		wait = false
 	case 'x':
 		wait = false
 		g.state = LOOK
