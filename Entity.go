@@ -80,16 +80,22 @@ func (e *Entity) moveTowards(oe *Entity) {
 
 	dx, dy := 0, 0
 
-	if ep.X < oep.X {
+	switch {
+	case ep.X < oep.X:
 		dx = 1
-	} else {
+	case ep.X > oep.X:
 		dx = -1
+	case ep.X == oep.X:
+		dx = 0
 	}
 
-	if ep.Y < oep.Y {
+	switch {
+	case ep.Y < oep.Y:
 		dy = 1
-	} else {
+	case ep.Y > oep.Y:
 		dy = -1
+	case ep.Y == oep.Y:
+		dy = 0
 	}
 
 	if ep.X+dx == oep.X && ep.Y+dy == oep.Y {
