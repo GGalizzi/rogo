@@ -1,6 +1,10 @@
 package main
 
-import sf "bitbucket.org/krepa098/gosfml2"
+import (
+	"fmt"
+
+	sf "bitbucket.org/krepa098/gosfml2"
+)
 
 //State represents the state of the game (i.e: playing, in inventory, dead, in the menu, etc)
 type State int
@@ -88,6 +92,11 @@ func (g *Game) run() {
 		for _, d := range g.entities {
 			if !wait && d != g.player && d.Mob != nil {
 				g.processAI(d)
+				if g.player.Mob == nil {
+					fmt.Print("Game Over, you died.\n")
+					g.window.Close()
+					return
+				}
 			}
 			g.Draw(d)
 		}
