@@ -19,6 +19,8 @@ func TestNewMobFromFile(t *testing.T) {
 	if maxhp, curhp, atk, def := e.maxhp, e.curhp, e.atk, e.def; maxhp != 30 || curhp != 30 || atk != 5 || def != 2 {
 		t.Errorf("Expected: maxhp: 30, curhp: 30, atk: 5, def: 2; Got: maxhp: %v, curhp: %v, atk: %v, def: %v", maxhp, curhp, atk, def)
 	}
+
+	t.Logf("Mob was created as per orc.json data: %+v", *e)
 }
 
 func TestBasicAi(t *testing.T) {
@@ -29,7 +31,7 @@ func TestBasicAi(t *testing.T) {
 	op := e.Position()
 	opv := e.PosVector()
 
-	g.entities = append(g.entities, e, g.player)
+	g.mobs = append(g.mobs, e, g.player)
 
 	g.processAI(e)
 
@@ -65,7 +67,7 @@ func TestFactionAttack(t *testing.T) {
 	orc2 := NewEntityFromFile("orc", 3, 4, a)
 
 	g := MockNewGame()
-	g.entities = append(g.entities, orc1, orc2)
+	g.mobs = append(g.mobs, orc1, orc2)
 
 	orc2hp := orc2.curhp
 	orc1.moveTowards(orc2, g)
@@ -73,6 +75,22 @@ func TestFactionAttack(t *testing.T) {
 	if actual := orc2.curhp; actual != orc2hp {
 		t.Errorf("Mobs within the same faction shouldn't hit each other when moving. Pre-HP: %v, Post-HP: %v", orc2hp, actual)
 	}
+}
+
+func TestMobDeath(t *testing.T) {
+	a := PrepareArea()
+	g := MockNewGame()
+	g.player.Place(3, 3)
+	orc := NewEntityFromFile("orc", 3, 4, a)
+	orc.curhp = 1
+	g.mobs = append(g.mobs, orc, g.player)
+
+	g.handleInput('2')
+
+	if orc.Mob != nil || orc.Item == nil {
+		t.Errorf("Expected orc to die. i.e: Mob be nil, Item not be nil ->: %v", orc)
+	}
+
 }
 
 func TestPlayerAttack(t *testing.T) {
@@ -83,7 +101,7 @@ func TestPlayerAttack(t *testing.T) {
 	g.player.SetPosition(sf.Vector2i{3, 3})
 	orc := NewEntityFromFile("orc", 3, 4, a)
 
-	g.entities = append(g.entities, g.player, orc)
+	g.mobs = append(g.mobs, g.player, orc)
 
 	prevHP := orc.curhp
 	g.handleInput('2')

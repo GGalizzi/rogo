@@ -59,6 +59,13 @@ func log(s string) {
 	}
 }
 
+func removeFromList(a []*Entity, i int) []*Entity {
+	//a[len(a)-1], a[i], a = nil, a[len(a)-1], a[:len(a)-1] // Deletes completely
+	a[i], a = a[len(a)-1], a[:len(a)-1]
+
+	return a
+}
+
 //Settings struct defines all the variable settings of the game, which are to be stored in a JSON file.
 type Settings struct {
 	Resolution string `json:"resolution"`
