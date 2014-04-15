@@ -203,8 +203,9 @@ listLoop:
 		for event := g.window.PollEvent(); event != nil; event = g.window.PollEvent() {
 			switch et := event.(type) {
 			case sf.EventTextEntered:
-				done := g.inventoryInput(et.Char, usables, names)
+				done, used := g.inventoryInput(et.Char, usables, names)
 				if done {
+					delete(g.player.inventory, used)
 					break listLoop
 				}
 			}
@@ -304,18 +305,20 @@ func (g *Game) handleInput(key rune) (wait bool) {
 	return
 }
 
-func (g *Game) inventoryInput(key rune, items map[rune]*Item, names map[*Item]string) bool {
+func (g *Game) inventoryInput(key rune, items map[rune]*Item, names map[*Item]string) (done bool, used string) {
 	fmt.Printf("Pressed: %q. Corresponds to: %+v", key, items[key])
 	if key == 27 {
-		return true
+		return true, ""
 	}
 
 	if items[key] != nil && items[key].effect != nil {
 		g.player.use(items[key])
 		log(fmt.Sprintf("You use %s", names[items[key]]))
-		return true
+		done, used = true, names[items[key]]
+		return
 	}
 
 	log("Can't use that.")
-	return false
+	done, used = false, ""
+	return
 }
