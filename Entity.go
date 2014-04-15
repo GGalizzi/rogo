@@ -91,6 +91,7 @@ func NewEntityFromFile(name string, x, y int, a *Area) *Entity {
 		switch e.itype {
 		case "potion":
 			e.effect = potionEffect
+			e.potency = int(data["potency"].(float64))
 		}
 	}
 
@@ -183,7 +184,7 @@ func (e *Entity) pickUp(i *Entity) {
 }
 
 func (e *Entity) use(i *Item) {
-	i.effect(e.Mob)
+	i.effect(i, e.Mob)
 }
 
 func (m *Mob) heal(amount int) {

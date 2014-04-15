@@ -9,13 +9,13 @@ const (
 )
 
 type Item struct {
-	effect  func(*Mob)
+	effect  func(*Item, *Mob)
 	itype   ItemType
 	potency int
 }
 
 type Inventory map[string]*Item
 
-func potionEffect(m *Mob) {
-	m.heal(10)
+func potionEffect(i *Item, m *Mob) {
+	m.heal(i.potency)
 }
