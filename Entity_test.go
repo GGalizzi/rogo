@@ -75,6 +75,22 @@ func TestFactionAttack(t *testing.T) {
 	}
 }
 
+func TestMobDeath(t *testing.T) {
+	a := PrepareArea()
+	g := MockNewGame()
+	g.player.Place(3, 3)
+	orc := NewEntityFromFile("orc", 3, 4, a)
+	orc.curhp = 1
+	g.mobs = append(g.mobs, orc, g.player)
+
+	g.handleInput('2')
+
+	if orc.Mob != nil || orc.Item == nil {
+		t.Errorf("Expected orc to die. i.e: Mob be nil, Item not be nil ->: %v", orc)
+	}
+
+}
+
 func TestPlayerAttack(t *testing.T) {
 	a := PrepareArea()
 

@@ -108,17 +108,23 @@ func (g *Game) run() {
 			g.Draw(i)
 		}
 
-		//Process mobs Ai and draw them.
-		for _, d := range g.mobs {
+		//Process mobs Ai, check for deaths and draw them.
+		for i, d := range g.mobs {
+			if d.Mob == nil {
+				g.items = append(g.items, d)
+				g.mobs = removeFromList(g.mobs, i)
+			}
 			if !wait && d != g.player && d.Mob != nil {
 				g.processAI(d)
-				if g.player.Mob == nil {
-					fmt.Print("Game Over, you died.\n")
-					g.window.Close()
-					return
-				}
 			}
 			g.Draw(d)
+		}
+
+		//Check if player died.
+		if g.player.Mob == nil {
+			fmt.Print("Game Over, you died.\n")
+			g.window.Close()
+			return
 		}
 
 		if g.state == LOOK {
@@ -161,7 +167,7 @@ func (g *Game) tryPickUp() {
 	for l, i := range g.items {
 		if g.player.Position() == i.Position() {
 			g.player.pickUp(i)
-			g.items[len(g.items)-1], g.items[l], g.items = nil, g.items[len(g.items)-1], g.items[:len(g.items)-1]
+			g.items = removeFromList(g.items, l)
 		}
 	}
 }

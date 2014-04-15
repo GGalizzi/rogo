@@ -165,7 +165,8 @@ func (attacker *Entity) attack(defender *Entity) {
 func (e *Entity) die() {
 	e.Mob = nil
 	e.sprite.SetColor(sf.ColorRed())
-	//TODO: make him an item.
+	e.name = e.name + "'s corpse"
+	e.Item = new(Item)
 }
 
 func (e *Entity) pickUp(i *Entity) {
