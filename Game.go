@@ -186,9 +186,11 @@ func (g *Game) listUsables() {
 	listText.SetPosition(sf.Vector2f{12, 12})
 	usables := make(map[rune]*Item)
 	for k, i := range g.player.inventory {
-		appendString(listText, strconv.QuoteRune(letter)+" - "+k)
-		usables[letter] = i
-		letter++
+		if i.effect != nil {
+			appendString(listText, strconv.QuoteRune(letter)+" - "+k)
+			usables[letter] = i
+			letter++
+		}
 	}
 
 listLoop:
