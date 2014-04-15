@@ -36,7 +36,8 @@ type Game struct {
 	player *Entity
 	cursor *Entity
 
-	entities []*Entity
+	mobs  []*Entity
+	items []*Entity
 
 	state State
 	Settings
@@ -60,10 +61,10 @@ func NewGame() *Game {
 	g.cursor = NewEntity("cursor", 0, 0, 2, 2, g.area)
 
 	for i := 0; i < 1; i++ {
-		g.entities = append(g.entities, NewEntityFromFile("orc", 3+i, 1, g.area))
+		g.mobs = append(g.mobs, NewEntityFromFile("orc", 3+i, 1, g.area))
 	}
-	g.entities = append(g.entities, NewEntityFromFile("potion", 4, 4, g.area))
-	g.entities = append(g.entities, g.player)
+	g.items = append(g.items, NewEntityFromFile("potion", 4, 4, g.area))
+	g.mobs = append(g.mobs, g.player)
 
 	g.gameView = sf.NewView()
 	g.gameView.SetCenter(g.player.PosVector())
@@ -71,12 +72,6 @@ func NewGame() *Game {
 	g.gameView.SetViewport(sf.FloatRect{0, 0, .75, .75})
 
 	g.logView = sf.NewView()
-
-	/*
-		lvCenterX := (g.resW * 0.8) / 2
-		lvCenterY := (g.resH * 0.30) / 2
-		g.logView.SetCenter(sf.Vector2f{lvCenterX, lvCenterY})
-	*/
 
 	var err error
 	g.lookText, err = sf.NewText(Font)
@@ -107,7 +102,14 @@ func (g *Game) run() {
 		g.window.Clear(sf.ColorBlack())
 
 		g.window.SetView(g.gameView)
-		for _, d := range g.entities {
+
+		//Draw items
+		for _, i := range g.items {
+			g.Draw(i)
+		}
+
+		//Process mobs Ai and draw them.
+		for _, d := range g.mobs {
 			if !wait && d != g.player && d.Mob != nil {
 				g.processAI(d)
 				if g.player.Mob == nil {
@@ -118,6 +120,7 @@ func (g *Game) run() {
 			}
 			g.Draw(d)
 		}
+
 		if g.state == LOOK {
 			g.Draw(g.cursor)
 			g.lookText.Draw(g.window, sf.DefaultRenderStates())
@@ -152,6 +155,15 @@ func (g *Game) openLog() {
 	g.logView.SetSize(sf.Vector2f{g.resW, g.resH * 0.85})
 	g.logView.SetViewport(sf.FloatRect{.1, .05, 1, .85})
 	g.logView.SetCenter(sf.Vector2f{g.resW / 2, (g.resH * .85) / 2})
+}
+
+func (g *Game) tryPickUp() {
+	for l, i := range g.items {
+		if g.player.Position() == i.Position() {
+			g.player.pickUp(i)
+			g.items[len(g.items)-1], g.items[l], g.items = nil, g.items[len(g.items)-1], g.items[:len(g.items)-1]
+		}
+	}
 }
 
 func (g *Game) processAI(e *Entity) {
@@ -205,6 +217,8 @@ func (g *Game) handleInput(key rune) (wait bool) {
 		move(-1, 1)
 	case '5':
 		wait = false
+	case 'g':
+		g.tryPickUp()
 	case 'x':
 		wait = true
 		g.state = LOOK

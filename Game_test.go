@@ -78,7 +78,7 @@ func TestStateCommands(t *testing.T) {
 func TestLookCommand(t *testing.T) {
 	g := MockNewGame()
 	orc := NewEntityFromFile("orc", 12, 13, g.area)
-	g.entities = append(g.entities, orc)
+	g.mobs = append(g.mobs, orc)
 
 	g.handleInput('x')
 	g.handleInput('2')
@@ -88,9 +88,9 @@ func TestLookCommand(t *testing.T) {
 	g.handleInput('8') // Go back up
 
 	newOrc := NewEntityFromFile("orc", 12, 13, g.area)
-	g.entities = append(g.entities, newOrc)
-	if l := len(g.entities); l != 2 {
-		t.Errorf("Length of g.entities should be 2. Got: %v", l)
+	g.mobs = append(g.mobs, newOrc)
+	if l := len(g.mobs); l != 2 {
+		t.Errorf("Length of g.mobs should be 2. Got: %v", l)
 	}
 
 	// This tests that more than one ent is described, and also that the text is

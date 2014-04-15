@@ -97,7 +97,7 @@ func (e *Entity) Move(x, y int, g *Game) {
 	dx := e.x + x
 	dy := e.y + y
 
-	for _, oe := range g.entities {
+	for _, oe := range g.mobs {
 		if oe.Mob != nil && dx == oe.Position().X && dy == oe.Position().Y {
 			if e.name == "cursor" {
 				g.describe(oe)
@@ -166,6 +166,11 @@ func (e *Entity) die() {
 	e.Mob = nil
 	e.sprite.SetColor(sf.ColorRed())
 	//TODO: make him an item.
+}
+
+func (e *Entity) pickUp(i *Entity) {
+	log(fmt.Sprintf("You pickup: %v", i.name))
+	//TODO: Add functionality to add to inventory
 }
 
 func (e *Entity) isAlliedWith(oe *Entity) bool {
