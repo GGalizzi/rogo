@@ -1,5 +1,6 @@
 {
   "spriteX": 0,
   "spriteY": 8,
-  "type": "item"
+  "type": "item",
+  "itemType": "potion"
 }

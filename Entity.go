@@ -37,7 +37,8 @@ type Mob struct {
 	atk   int
 	def   int
 
-	faction []Faction
+	inventory Inventory
+	faction   []Faction
 }
 
 //NewEntity initializes an Entity with the given data.
@@ -53,6 +54,7 @@ func NewEntity(name string, spriteX, spriteY, posX, posY int, a *Area) *Entity {
 	m.atk = 10
 	m.def = 4
 	m.faction = append(m.faction, PLAYER)
+	m.inventory = make(Inventory)
 
 	return &Entity{x: posX, y: posY, area: a, sprite: sprite, Mob: m, name: name}
 }
@@ -85,6 +87,11 @@ func NewEntityFromFile(name string, x, y int, a *Area) *Entity {
 	e.Item = nil
 	if data["type"].(string) == "item" {
 		e.Item = new(Item)
+		e.itype = ItemType(data["itemType"].(string))
+		switch e.itype {
+		case "potion":
+			e.effect = potionEffect
+		}
 	}
 
 	return e
@@ -143,7 +150,7 @@ func (e *Entity) moveTowards(oe *Entity, g *Game) {
 }
 
 func (attacker *Entity) attack(defender *Entity) {
-	fmt.Printf("%v attacks %v\n", *attacker.Mob, *defender.Mob)
+	fmt.Printf("%+v attacks %+v\n", *attacker.Mob, *defender.Mob)
 	if !attacker.isAlliedWith(defender) {
 		curhp := defender.curhp
 		afterhp := curhp - (attacker.atk - defender.def)
@@ -172,6 +179,18 @@ func (e *Entity) die() {
 func (e *Entity) pickUp(i *Entity) {
 	log(fmt.Sprintf("You pickup: %v", i.name))
 	//TODO: Add functionality to add to inventory
+	e.inventory[i.name] = i.Item
+}
+
+func (e *Entity) use(i *Item) {
+	i.effect(e.Mob)
+}
+
+func (m *Mob) heal(amount int) {
+	m.curhp += amount
+	if m.curhp > m.maxhp {
+		m.curhp = m.maxhp
+	}
 }
 
 func (e *Entity) isAlliedWith(oe *Entity) bool {

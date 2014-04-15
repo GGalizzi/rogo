@@ -19,6 +19,8 @@ func TestNewMobFromFile(t *testing.T) {
 	if maxhp, curhp, atk, def := e.maxhp, e.curhp, e.atk, e.def; maxhp != 30 || curhp != 30 || atk != 5 || def != 2 {
 		t.Errorf("Expected: maxhp: 30, curhp: 30, atk: 5, def: 2; Got: maxhp: %v, curhp: %v, atk: %v, def: %v", maxhp, curhp, atk, def)
 	}
+
+	t.Logf("Mob was created as per orc.json data: %+v", *e)
 }
 
 func TestBasicAi(t *testing.T) {
