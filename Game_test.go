@@ -97,11 +97,17 @@ func TestLookCommand(t *testing.T) {
 	//cleared after describing ents in one tile.
 	g.handleInput('2')
 	if actual := g.lookText.GetString(); actual != "orc\norc" {
-		t.Errorf("Expected: \"orc\", Got:\n \"%v\"", actual)
+		t.Errorf("Expected: \"orc\norc\", Got:\n \"%v\"", actual)
 	}
 	g.handleInput('8')
 	if actual := g.lookText.GetString(); actual != "" {
 		t.Errorf("Expected empty string. Got:\n \"%v\"", actual)
+	}
+
+	g.items = append(g.items, NewEntityFromFile("potion", 13, 12, g.area))
+	g.handleInput('6')
+	if actual := g.lookText.GetString(); actual != "potion" {
+		t.Errorf("Expected \"potion\". Got:\n \"%v\"", actual)
 	}
 }
 

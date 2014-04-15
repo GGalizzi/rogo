@@ -63,10 +63,10 @@ func NewGame() *Game {
 	g.player = NewEntity("player", 0, 0, 3, 4, g.area)
 	g.cursor = NewEntity("cursor", 0, 0, 2, 2, g.area)
 
-	for i := 0; i < 1; i++ {
+	for i := 0; i < 3; i++ {
 		g.mobs = append(g.mobs, NewEntityFromFile("orc", 3+i, 1, g.area))
+		g.items = append(g.items, NewEntityFromFile("potion", 4, 4, g.area))
 	}
-	g.items = append(g.items, NewEntityFromFile("potion", 4, 4, g.area))
 	g.mobs = append(g.mobs, g.player)
 
 	g.gameView = sf.NewView()
@@ -178,6 +178,7 @@ func (g *Game) tryPickUp() {
 		if g.player.Position() == i.Position() {
 			g.player.pickUp(i)
 			g.items = removeFromList(g.items, l)
+			return
 		}
 	}
 }
@@ -191,7 +192,7 @@ func (g *Game) listUsables() {
 	names := make(map[*Item]string)
 	for k, i := range g.player.inventory {
 		if i.effect != nil {
-			appendString(listText, strconv.QuoteRune(letter)+" - "+k)
+			appendString(listText, strconv.QuoteRune(letter)+" - "+k+" x"+strconv.Itoa(i.stack))
 			usables[letter] = i
 			names[i] = k
 			letter++
@@ -204,8 +205,16 @@ listLoop:
 			switch et := event.(type) {
 			case sf.EventTextEntered:
 				done, used := g.inventoryInput(et.Char, usables, names)
-				if done {
+				if used != "" {
+					usedI := g.player.inventory[used]
+					if usedI.stack > 1 {
+						usedI.stack--
+						break listLoop
+					}
 					delete(g.player.inventory, used)
+					break listLoop
+				}
+				if done {
 					break listLoop
 				}
 			}

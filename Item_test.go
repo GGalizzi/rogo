@@ -16,7 +16,15 @@ func TestInventory(t *testing.T) {
 		t.Errorf("Expected player to have potion in inventory: %v", g.player.inventory)
 	}
 
-	t.Logf("Player should have potion in inventory: %v", g.player.inventory)
+	g.items = append(g.items, NewEntityFromFile("potion", 3, 3, a))
+
+	g.handleInput('g')
+
+	if g.player.inventory["potion"].stack != 2 {
+		t.Errorf("Player should have two potions, it has: %d", g.player.inventory["potion"].stack)
+	}
+
+	t.Logf("Player should have potions in inventory: %+v", g.player.inventory)
 }
 
 func TestPotion(t *testing.T) {

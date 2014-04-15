@@ -87,6 +87,7 @@ func NewEntityFromFile(name string, x, y int, a *Area) *Entity {
 	e.Item = nil
 	if data["type"].(string) == "item" {
 		e.Item = new(Item)
+		e.stack = 1
 		e.itype = ItemType(data["itemType"].(string))
 		switch e.itype {
 		case "potion":
@@ -105,11 +106,13 @@ func (e *Entity) Move(x, y int, g *Game) {
 	dx := e.x + x
 	dy := e.y + y
 
-	for _, oe := range g.mobs {
-		if oe.Mob != nil && dx == oe.Position().X && dy == oe.Position().Y {
+	ents := append(g.mobs, g.items...)
+
+	for _, oe := range ents {
+		if dx == oe.Position().X && dy == oe.Position().Y {
 			if e.name == "cursor" {
 				g.describe(oe)
-			} else {
+			} else if oe.Mob != nil {
 				e.attack(oe)
 				return
 			}
@@ -151,7 +154,6 @@ func (e *Entity) moveTowards(oe *Entity, g *Game) {
 }
 
 func (attacker *Entity) attack(defender *Entity) {
-	fmt.Printf("%+v attacks %+v\n", *attacker.Mob, *defender.Mob)
 	if !attacker.isAlliedWith(defender) {
 		curhp := defender.curhp
 		afterhp := curhp - (attacker.atk - defender.def)
@@ -179,7 +181,10 @@ func (e *Entity) die() {
 
 func (e *Entity) pickUp(i *Entity) {
 	log(fmt.Sprintf("You pickup: %v", i.name))
-	//TODO: Add functionality to add to inventory
+	if e.inventory[i.name] != nil {
+		e.inventory[i.name].stack++ //Add a stack to it if we already had the item.
+		return
+	}
 	e.inventory[i.name] = i.Item
 }
 

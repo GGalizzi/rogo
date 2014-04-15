@@ -9,9 +9,11 @@ const (
 )
 
 type Item struct {
-	effect  func(*Item, *Mob)
-	itype   ItemType
+	effect func(*Item, *Mob)
+	itype  ItemType
+
 	potency int
+	stack   int
 }
 
 type Inventory map[string]*Item

@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -61,6 +62,10 @@ func log(s string) {
 
 func removeFromList(a []*Entity, i int) []*Entity {
 	//a[len(a)-1], a[i], a = nil, a[len(a)-1], a[:len(a)-1] // Deletes completely
+	if len(a) <= i {
+		fmt.Printf("Trying to remove something that doesn't exist? %v [%d]\n", a, i)
+		return a
+	}
 	a[i], a = a[len(a)-1], a[:len(a)-1]
 
 	return a
