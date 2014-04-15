@@ -47,10 +47,10 @@ func TestHandleInput(t *testing.T) {
 }
 
 func TestSettings(t *testing.T) {
-	if actual := readSettings().resW; actual != 840 {
+	if actual := readSettings().resW; actual != 1024 {
 		t.Errorf("resW = %v, expected: %v", actual, 840)
 	}
-	if actual := readSettings().resH; actual != 780 {
+	if actual := readSettings().resH; actual != 720 {
 		t.Errorf("resH = %v, expected: %v", actual, 780)
 	}
 }

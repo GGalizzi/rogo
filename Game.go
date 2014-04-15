@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 
 	sf "bitbucket.org/krepa098/gosfml2"
 )
@@ -14,6 +15,8 @@ const (
 	PLAY State = iota
 	//LOOK state means the player is using the look command.
 	LOOK
+	//LOG state means the player is looking at the log
+	LOG
 )
 
 //Drawer is implemented on types that can be drawn on the window.
@@ -39,14 +42,17 @@ type Game struct {
 	Settings
 
 	gameView *sf.View
+	logView  *sf.View
+
 	lookText *sf.Text
+	logText  *sf.Text
 }
 
 //NewGame initializes a Game struct.
 func NewGame() *Game {
 	g := new(Game)
 	g.Settings = readSettings()
-	g.window = sf.NewRenderWindow(sf.VideoMode{g.resW, g.resH, 32}, "GoSFMLike", sf.StyleDefault, sf.DefaultContextSettings())
+	g.window = sf.NewRenderWindow(sf.VideoMode{uint(g.resW), uint(g.resH), 32}, "GoSFMLike", sf.StyleDefault, sf.DefaultContextSettings())
 	g.state = PLAY
 
 	g.area = NewArea()
@@ -61,8 +67,16 @@ func NewGame() *Game {
 
 	g.gameView = sf.NewView()
 	g.gameView.SetCenter(g.player.PosVector())
-	g.gameView.SetSize(sf.Vector2f{150, 150})
+	g.gameView.SetSize(sf.Vector2f{g.resW * 0.75, g.resH * 0.75})
 	g.gameView.SetViewport(sf.FloatRect{0, 0, .75, .75})
+
+	g.logView = sf.NewView()
+
+	/*
+		lvCenterX := (g.resW * 0.8) / 2
+		lvCenterY := (g.resH * 0.30) / 2
+		g.logView.SetCenter(sf.Vector2f{lvCenterX, lvCenterY})
+	*/
 
 	var err error
 	g.lookText, err = sf.NewText(Font)
@@ -70,6 +84,9 @@ func NewGame() *Game {
 		panic(err)
 	}
 	g.lookText.SetCharacterSize(12)
+
+	g.logText, _ = sf.NewText(Font)
+	g.logText.SetCharacterSize(12)
 
 	return g
 }
@@ -107,9 +124,34 @@ func (g *Game) run() {
 		}
 
 		g.Draw(g.area)
+
+		logFile, err := ioutil.ReadFile("log.txt")
+		if err != nil {
+			fmt.Println("Can't open the log file log.txt: ERR: ", err)
+		}
+
+		if g.state != LOG {
+			g.logView.SetSize(sf.Vector2f{g.resW * 0.8, g.resH * 0.25})
+			g.logView.SetViewport(sf.FloatRect{0.01, .70, .8, .25})
+			glb := g.logText.GetGlobalBounds()
+			lvCenterX := (g.resW * 0.8) / 2
+			lvCenterY := (g.resH * 0.25) / 2
+			g.logView.SetCenter(sf.Vector2f{lvCenterX, glb.Height - lvCenterY})
+		}
+
+		g.window.SetView(g.logView)
+		g.logText.SetString(string(logFile))
+		g.logText.Draw(g.window, sf.DefaultRenderStates())
+
 		g.window.Display()
 	}
 
+}
+
+func (g *Game) openLog() {
+	g.logView.SetSize(sf.Vector2f{g.resW, g.resH * 0.85})
+	g.logView.SetViewport(sf.FloatRect{.1, .05, 1, .85})
+	g.logView.SetCenter(sf.Vector2f{g.resW / 2, (g.resH * .85) / 2})
 }
 
 func (g *Game) processAI(e *Entity) {
@@ -134,11 +176,14 @@ func (g *Game) handleInput(key rune) (wait bool) {
 		if g.state == LOOK {
 			g.lookText.SetString("")
 		}
-		inControl.Move(x, y, g)
+		if g.state != LOG {
+			inControl.Move(x, y, g)
+
+			g.gameView.SetCenter(inControl.PosVector())
+		}
 		if g.state == PLAY {
 			wait = false
 		}
-		g.gameView.SetCenter(inControl.PosVector())
 	}
 
 	switch key {
@@ -161,15 +206,21 @@ func (g *Game) handleInput(key rune) (wait bool) {
 	case '5':
 		wait = false
 	case 'x':
-		wait = false
+		wait = true
 		g.state = LOOK
 		g.cursor.SetPosition(g.player.Position())
+	case 'L':
+		wait = true
+		g.state = LOG
+		g.openLog()
 	case 27: //ESC key
-		wait = false
+		wait = true
 		g.state = PLAY
 		g.gameView.SetCenter(g.player.PosVector())
 	case 'Q':
 		g.window.Close()
+	default:
+		fmt.Println("Can't recognize command: ", key)
 	}
 
 	return
