@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 
 	sf "bitbucket.org/krepa098/gosfml2"
 )
@@ -39,14 +40,17 @@ type Game struct {
 	Settings
 
 	gameView *sf.View
+	logView  *sf.View
+
 	lookText *sf.Text
+	logText  *sf.Text
 }
 
 //NewGame initializes a Game struct.
 func NewGame() *Game {
 	g := new(Game)
 	g.Settings = readSettings()
-	g.window = sf.NewRenderWindow(sf.VideoMode{g.resW, g.resH, 32}, "GoSFMLike", sf.StyleDefault, sf.DefaultContextSettings())
+	g.window = sf.NewRenderWindow(sf.VideoMode{uint(g.resW), uint(g.resH), 32}, "GoSFMLike", sf.StyleDefault, sf.DefaultContextSettings())
 	g.state = PLAY
 
 	g.area = NewArea()
@@ -61,8 +65,17 @@ func NewGame() *Game {
 
 	g.gameView = sf.NewView()
 	g.gameView.SetCenter(g.player.PosVector())
-	g.gameView.SetSize(sf.Vector2f{150, 150})
+	g.gameView.SetSize(sf.Vector2f{g.resW * 0.75, g.resH * 0.75})
 	g.gameView.SetViewport(sf.FloatRect{0, 0, .75, .75})
+
+	g.logView = sf.NewView()
+	g.logView.SetSize(sf.Vector2f{g.resW * 0.8, g.resH * 0.25})
+	g.logView.SetViewport(sf.FloatRect{0.01, .70, .8, .25})
+	/*
+		lvCenterX := (g.resW * 0.8) / 2
+		lvCenterY := (g.resH * 0.30) / 2
+		g.logView.SetCenter(sf.Vector2f{lvCenterX, lvCenterY})
+	*/
 
 	var err error
 	g.lookText, err = sf.NewText(Font)
@@ -70,6 +83,9 @@ func NewGame() *Game {
 		panic(err)
 	}
 	g.lookText.SetCharacterSize(12)
+
+	g.logText, _ = sf.NewText(Font)
+	g.logText.SetCharacterSize(12)
 
 	return g
 }
@@ -107,9 +123,28 @@ func (g *Game) run() {
 		}
 
 		g.Draw(g.area)
+
+		logFile, err := ioutil.ReadFile("log.txt")
+		if err != nil {
+			fmt.Println("Can't open the log file log.txt: ERR: ", err)
+		}
+
+		glb := g.logText.GetGlobalBounds()
+		lvCenterX := (g.resW * 0.8) / 2
+		lvCenterY := (g.resH * 0.25) / 2
+		g.logView.SetCenter(sf.Vector2f{lvCenterX, glb.Height - lvCenterY})
+
+		g.window.SetView(g.logView)
+		g.logText.SetString(string(logFile))
+		g.logText.Draw(g.window, sf.DefaultRenderStates())
+
 		g.window.Display()
 	}
 
+}
+
+func (g *Game) displayLog(s string) {
+	appendString(g.logText, s)
 }
 
 func (g *Game) processAI(e *Entity) {

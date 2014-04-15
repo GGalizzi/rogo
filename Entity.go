@@ -156,6 +156,8 @@ func (attacker *Entity) attack(defender *Entity) {
 			return
 		}
 		defender.curhp = afterhp
+		damaged := curhp - defender.curhp
+		log(fmt.Sprintf("%v attacks %v for %v damage.", attacker.name, defender.name, damaged))
 
 	}
 }
