@@ -106,6 +106,7 @@ func (g *Game) run() {
 		}
 		g.window.Clear(sf.ColorBlack())
 
+		g.drawLog()
 		if g.state != INVENTORY {
 			g.window.SetView(g.gameView)
 
@@ -140,28 +141,30 @@ func (g *Game) run() {
 
 			g.Draw(g.area)
 
-			logFile, err := ioutil.ReadFile("log.txt")
-			if err != nil {
-				fmt.Println("Can't open the log file log.txt: ERR: ", err)
-			}
-
-			if g.state != LOG {
-				g.logView.SetSize(sf.Vector2f{g.resW * 0.8, g.resH * 0.25})
-				g.logView.SetViewport(sf.FloatRect{0.01, .70, .8, .25})
-				glb := g.logText.GetGlobalBounds()
-				lvCenterX := (g.resW * 0.8) / 2
-				lvCenterY := (g.resH * 0.25) / 2
-				g.logView.SetCenter(sf.Vector2f{lvCenterX, glb.Height - lvCenterY})
-			}
-
-			g.window.SetView(g.logView)
-			g.logText.SetString(string(logFile))
-			g.logText.Draw(g.window, sf.DefaultRenderStates())
-
 			g.window.Display()
 		}
 	}
 
+}
+
+func (g *Game) drawLog() {
+	logFile, err := ioutil.ReadFile("log.txt")
+	if err != nil {
+		fmt.Println("Can't open the log file log.txt: ERR: ", err)
+	}
+
+	if g.state != LOG {
+		g.logView.SetSize(sf.Vector2f{g.resW * 0.8, g.resH * 0.25})
+		g.logView.SetViewport(sf.FloatRect{0.01, .70, .8, .25})
+		glb := g.logText.GetGlobalBounds()
+		lvCenterX := (g.resW * 0.8) / 2
+		lvCenterY := (g.resH * 0.25) / 2
+		g.logView.SetCenter(sf.Vector2f{lvCenterX, glb.Height - lvCenterY})
+	}
+
+	g.window.SetView(g.logView)
+	g.logText.SetString(string(logFile))
+	g.logText.Draw(g.window, sf.DefaultRenderStates())
 }
 
 func (g *Game) openLog() {
@@ -185,10 +188,12 @@ func (g *Game) listUsables() {
 	listText.SetCharacterSize(12)
 	listText.SetPosition(sf.Vector2f{12, 12})
 	usables := make(map[rune]*Item)
+	names := make(map[*Item]string)
 	for k, i := range g.player.inventory {
 		if i.effect != nil {
 			appendString(listText, strconv.QuoteRune(letter)+" - "+k)
 			usables[letter] = i
+			names[i] = k
 			letter++
 		}
 	}
@@ -198,13 +203,16 @@ listLoop:
 		for event := g.window.PollEvent(); event != nil; event = g.window.PollEvent() {
 			switch et := event.(type) {
 			case sf.EventTextEntered:
-				done := g.inventoryInput(et.Char, usables)
+				done := g.inventoryInput(et.Char, usables, names)
 				if done {
 					break listLoop
 				}
 			}
 		}
 		g.window.Clear(sf.ColorBlack())
+
+		g.window.SetView(g.logView)
+		g.drawLog()
 		g.window.SetView(g.gameView)
 		listText.Draw(g.window, sf.DefaultRenderStates())
 		g.window.Display()
@@ -253,10 +261,6 @@ func (g *Game) handleInput(key rune) (wait bool) {
 		return
 	}
 
-	if g.state == INVENTORY {
-		return
-	}
-
 	switch key {
 	case '2':
 		move(0, 1)
@@ -300,7 +304,7 @@ func (g *Game) handleInput(key rune) (wait bool) {
 	return
 }
 
-func (g *Game) inventoryInput(key rune, items map[rune]*Item) bool {
+func (g *Game) inventoryInput(key rune, items map[rune]*Item, names map[*Item]string) bool {
 	fmt.Printf("Pressed: %q. Corresponds to: %+v", key, items[key])
 	if key == 27 {
 		return true
@@ -308,8 +312,10 @@ func (g *Game) inventoryInput(key rune, items map[rune]*Item) bool {
 
 	if items[key] != nil && items[key].effect != nil {
 		g.player.use(items[key])
+		log(fmt.Sprintf("You use %s", names[items[key]]))
 		return true
 	}
 
+	log("Can't use that.")
 	return false
 }
