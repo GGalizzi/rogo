@@ -300,7 +300,14 @@ func (g *Game) handleInput(key rune) (wait bool) {
 
 func (g *Game) inventoryInput(key rune, items map[rune]*Item) bool {
 	fmt.Printf("Pressed: %q. Corresponds to: %+v", key, items[key])
-	g.player.use(items[key])
+	if key == 27 {
+		return true
+	}
 
-	return true
+	if items[key] != nil && items[key].effect != nil {
+		g.player.use(items[key])
+		return true
+	}
+
+	return false
 }
