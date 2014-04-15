@@ -201,7 +201,6 @@ func (e *Entity) isAlliedWith(oe *Entity) bool {
 	for _, ef := range tef {
 		for _, oef := range toef {
 			if ef == oef {
-				//fmt.Printf("%v  %v", ef, oef)
 				return true
 			}
 		}

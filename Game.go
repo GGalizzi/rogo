@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"strconv"
 
 	sf "bitbucket.org/krepa098/gosfml2"
 )
@@ -17,6 +18,8 @@ const (
 	LOOK
 	//LOG state means the player is looking at the log
 	LOG
+	//INVENTORY state means the player is looking at an inventory list.
+	INVENTORY
 )
 
 //Drawer is implemented on types that can be drawn on the window.
@@ -91,68 +94,72 @@ func (g *Game) run() {
 	for g.window.IsOpen() {
 
 		wait := true
+	pollLoop:
 		for event := g.window.PollEvent(); event != nil; event = g.window.PollEvent() {
 			switch et := event.(type) {
 			case sf.EventClosed:
 				g.window.Close()
 			case sf.EventTextEntered:
 				wait = g.handleInput(et.Char)
+				break pollLoop
 			}
 		}
 		g.window.Clear(sf.ColorBlack())
 
-		g.window.SetView(g.gameView)
+		if g.state != INVENTORY {
+			g.window.SetView(g.gameView)
 
-		//Draw items
-		for _, i := range g.items {
-			g.Draw(i)
-		}
-
-		//Process mobs Ai, check for deaths and draw them.
-		for i, d := range g.mobs {
-			if d.Mob == nil {
-				g.items = append(g.items, d)
-				g.mobs = removeFromList(g.mobs, i)
+			//Draw items
+			for _, i := range g.items {
+				g.Draw(i)
 			}
-			if !wait && d != g.player && d.Mob != nil {
-				g.processAI(d)
+
+			//Process mobs Ai, check for deaths and draw them.
+			for i, d := range g.mobs {
+				if d.Mob == nil {
+					g.items = append(g.items, d)
+					g.mobs = removeFromList(g.mobs, i)
+				}
+				if !wait && d != g.player && d.Mob != nil {
+					g.processAI(d)
+				}
+				g.Draw(d)
 			}
-			g.Draw(d)
+
+			//Check if player died.
+			if g.player.Mob == nil {
+				fmt.Print("Game Over, you died.\n")
+				g.window.Close()
+				return
+			}
+
+			if g.state == LOOK {
+				g.Draw(g.cursor)
+				g.lookText.Draw(g.window, sf.DefaultRenderStates())
+			}
+
+			g.Draw(g.area)
+
+			logFile, err := ioutil.ReadFile("log.txt")
+			if err != nil {
+				fmt.Println("Can't open the log file log.txt: ERR: ", err)
+			}
+
+			if g.state != LOG {
+				g.logView.SetSize(sf.Vector2f{g.resW * 0.8, g.resH * 0.25})
+				g.logView.SetViewport(sf.FloatRect{0.01, .70, .8, .25})
+				glb := g.logText.GetGlobalBounds()
+				lvCenterX := (g.resW * 0.8) / 2
+				lvCenterY := (g.resH * 0.25) / 2
+				g.logView.SetCenter(sf.Vector2f{lvCenterX, glb.Height - lvCenterY})
+			}
+
+			g.window.SetView(g.logView)
+			g.logText.SetString(string(logFile))
+			g.logText.Draw(g.window, sf.DefaultRenderStates())
+
+			g.window.Display()
 		}
-
-		//Check if player died.
-		if g.player.Mob == nil {
-			fmt.Print("Game Over, you died.\n")
-			g.window.Close()
-			return
-		}
-
-		if g.state == LOOK {
-			g.Draw(g.cursor)
-			g.lookText.Draw(g.window, sf.DefaultRenderStates())
-		}
-
-		g.Draw(g.area)
-
-		logFile, err := ioutil.ReadFile("log.txt")
-		if err != nil {
-			fmt.Println("Can't open the log file log.txt: ERR: ", err)
-		}
-
-		if g.state != LOG {
-			g.logView.SetSize(sf.Vector2f{g.resW * 0.8, g.resH * 0.25})
-			g.logView.SetViewport(sf.FloatRect{0.01, .70, .8, .25})
-			glb := g.logText.GetGlobalBounds()
-			lvCenterX := (g.resW * 0.8) / 2
-			lvCenterY := (g.resH * 0.25) / 2
-			g.logView.SetCenter(sf.Vector2f{lvCenterX, glb.Height - lvCenterY})
-		}
-
-		g.window.SetView(g.logView)
-		g.logText.SetString(string(logFile))
-		g.logText.Draw(g.window, sf.DefaultRenderStates())
-
-		g.window.Display()
 	}
 
 }
@@ -170,6 +177,38 @@ func (g *Game) tryPickUp() {
 			g.items = removeFromList(g.items, l)
 		}
 	}
+}
+
+func (g *Game) listUsables() {
+	letter := 'a'
+	listText, _ := sf.NewText(Font)
+	listText.SetCharacterSize(12)
+	listText.SetPosition(sf.Vector2f{12, 12})
+	usables := make(map[rune]*Item)
+	for k, i := range g.player.inventory {
+		appendString(listText, strconv.QuoteRune(letter)+" - "+k)
+		usables[letter] = i
+		letter++
+	}
+
+listLoop:
+	for g.window.IsOpen() {
+		for event := g.window.PollEvent(); event != nil; event = g.window.PollEvent() {
+			switch et := event.(type) {
+			case sf.EventTextEntered:
+				done := g.inventoryInput(et.Char, usables)
+				if done {
+					break listLoop
+				}
+			}
+		}
+		g.window.Clear(sf.ColorBlack())
+		g.window.SetView(g.gameView)
+		listText.Draw(g.window, sf.DefaultRenderStates())
+		g.window.Display()
+	}
+
+	g.state = PLAY
 }
 
 func (g *Game) processAI(e *Entity) {
@@ -204,6 +243,18 @@ func (g *Game) handleInput(key rune) (wait bool) {
 		}
 	}
 
+	// The ESC key should be usable in all states to exit back toPLAY
+	if key == 27 {
+		wait = true
+		g.state = PLAY
+		g.gameView.SetCenter(g.player.PosVector())
+		return
+	}
+
+	if g.state == INVENTORY {
+		return
+	}
+
 	switch key {
 	case '2':
 		move(0, 1)
@@ -225,6 +276,10 @@ func (g *Game) handleInput(key rune) (wait bool) {
 		wait = false
 	case 'g':
 		g.tryPickUp()
+	case 'u':
+		wait = true
+		g.state = INVENTORY
+		g.listUsables()
 	case 'x':
 		wait = true
 		g.state = LOOK
@@ -233,10 +288,7 @@ func (g *Game) handleInput(key rune) (wait bool) {
 		wait = true
 		g.state = LOG
 		g.openLog()
-	case 27: //ESC key
-		wait = true
-		g.state = PLAY
-		g.gameView.SetCenter(g.player.PosVector())
+
 	case 'Q':
 		g.window.Close()
 	default:
@@ -244,4 +296,11 @@ func (g *Game) handleInput(key rune) (wait bool) {
 	}
 
 	return
+}
+
+func (g *Game) inventoryInput(key rune, items map[rune]*Item) bool {
+	fmt.Printf("Pressed: %q. Corresponds to: %+v", key, items[key])
+	g.player.use(items[key])
+
+	return true
 }
