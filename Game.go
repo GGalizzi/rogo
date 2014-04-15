@@ -45,9 +45,11 @@ type Game struct {
 	state State
 	Settings
 
-	gameView *sf.View
-	logView  *sf.View
+	gameView   *sf.View
+	statusView *sf.View
+	logView    *sf.View
 
+	hpText   *sf.Text
 	lookText *sf.Text
 	logText  *sf.Text
 }
@@ -73,6 +75,15 @@ func NewGame() *Game {
 	g.gameView.SetCenter(g.player.PosVector())
 	g.gameView.SetSize(sf.Vector2f{g.resW * 0.75, g.resH * 0.75})
 	g.gameView.SetViewport(sf.FloatRect{0, 0, .75, .75})
+
+	g.statusView = sf.NewView()
+	g.statusView.SetSize(sf.Vector2f{g.resW * 0.25, g.resH})
+	g.statusView.SetCenter(sf.Vector2f{(g.resW * 0.25) / 2, g.resH / 2})
+	g.statusView.SetViewport(sf.FloatRect{.77, 0, .25, 1})
+	//g.statusView.SetViewport(sf.FloatRect{0, 0, 1, 1})
+
+	g.hpText, _ = sf.NewText(Font)
+	g.hpText.SetCharacterSize(12)
 
 	g.logView = sf.NewView()
 
@@ -106,6 +117,9 @@ func (g *Game) run() {
 		}
 		g.window.Clear(sf.ColorBlack())
 
+		g.window.SetView(g.statusView)
+		g.hpText.SetString("HP: " + strconv.Itoa(g.player.curhp) + "/" + strconv.Itoa(g.player.maxhp))
+		g.hpText.Draw(g.window, sf.DefaultRenderStates())
 		g.drawLog()
 		if g.state != INVENTORY {
 			g.window.SetView(g.gameView)
