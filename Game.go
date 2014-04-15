@@ -15,6 +15,8 @@ const (
 	PLAY State = iota
 	//LOOK state means the player is using the look command.
 	LOOK
+	//LOG state means the player is looking at the log
+	LOG
 )
 
 //Drawer is implemented on types that can be drawn on the window.
@@ -69,8 +71,7 @@ func NewGame() *Game {
 	g.gameView.SetViewport(sf.FloatRect{0, 0, .75, .75})
 
 	g.logView = sf.NewView()
-	g.logView.SetSize(sf.Vector2f{g.resW * 0.8, g.resH * 0.25})
-	g.logView.SetViewport(sf.FloatRect{0.01, .70, .8, .25})
+
 	/*
 		lvCenterX := (g.resW * 0.8) / 2
 		lvCenterY := (g.resH * 0.30) / 2
@@ -129,10 +130,14 @@ func (g *Game) run() {
 			fmt.Println("Can't open the log file log.txt: ERR: ", err)
 		}
 
-		glb := g.logText.GetGlobalBounds()
-		lvCenterX := (g.resW * 0.8) / 2
-		lvCenterY := (g.resH * 0.25) / 2
-		g.logView.SetCenter(sf.Vector2f{lvCenterX, glb.Height - lvCenterY})
+		if g.state != LOG {
+			g.logView.SetSize(sf.Vector2f{g.resW * 0.8, g.resH * 0.25})
+			g.logView.SetViewport(sf.FloatRect{0.01, .70, .8, .25})
+			glb := g.logText.GetGlobalBounds()
+			lvCenterX := (g.resW * 0.8) / 2
+			lvCenterY := (g.resH * 0.25) / 2
+			g.logView.SetCenter(sf.Vector2f{lvCenterX, glb.Height - lvCenterY})
+		}
 
 		g.window.SetView(g.logView)
 		g.logText.SetString(string(logFile))
@@ -143,8 +148,10 @@ func (g *Game) run() {
 
 }
 
-func (g *Game) displayLog(s string) {
-	appendString(g.logText, s)
+func (g *Game) openLog() {
+	g.logView.SetSize(sf.Vector2f{g.resW, g.resH * 0.85})
+	g.logView.SetViewport(sf.FloatRect{.1, .05, 1, .85})
+	g.logView.SetCenter(sf.Vector2f{g.resW / 2, (g.resH * .85) / 2})
 }
 
 func (g *Game) processAI(e *Entity) {
@@ -169,11 +176,14 @@ func (g *Game) handleInput(key rune) (wait bool) {
 		if g.state == LOOK {
 			g.lookText.SetString("")
 		}
-		inControl.Move(x, y, g)
+		if g.state != LOG {
+			inControl.Move(x, y, g)
+
+			g.gameView.SetCenter(inControl.PosVector())
+		}
 		if g.state == PLAY {
 			wait = false
 		}
-		g.gameView.SetCenter(inControl.PosVector())
 	}
 
 	switch key {
@@ -196,15 +206,21 @@ func (g *Game) handleInput(key rune) (wait bool) {
 	case '5':
 		wait = false
 	case 'x':
-		wait = false
+		wait = true
 		g.state = LOOK
 		g.cursor.SetPosition(g.player.Position())
+	case 'L':
+		wait = true
+		g.state = LOG
+		g.openLog()
 	case 27: //ESC key
-		wait = false
+		wait = true
 		g.state = PLAY
 		g.gameView.SetCenter(g.player.PosVector())
 	case 'Q':
 		g.window.Close()
+	default:
+		fmt.Println("Can't recognize command: ", key)
 	}
 
 	return
