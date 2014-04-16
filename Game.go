@@ -81,7 +81,6 @@ func NewGame() *Game {
 	g.statusView.SetSize(sf.Vector2f{g.resW * 0.25, g.resH})
 	g.statusView.SetCenter(sf.Vector2f{(g.resW * 0.25) / 2, g.resH / 2})
 	g.statusView.SetViewport(sf.FloatRect{.77, 0, .25, 1})
-	//g.statusView.SetViewport(sf.FloatRect{0, 0, 1, 1})
 
 	g.hpText, _ = sf.NewText(Font)
 	g.hpText.SetCharacterSize(12)
@@ -118,10 +117,13 @@ func (g *Game) run() {
 		}
 		g.window.Clear(sf.ColorBlack())
 
+		// Draw status stuff.
 		g.window.SetView(g.statusView)
 		g.hpText.SetString("HP: " + strconv.Itoa(g.player.curhp) + "/" + strconv.Itoa(g.player.maxhp))
 		g.hpText.Draw(g.window, sf.DefaultRenderStates())
+
 		g.drawLog()
+
 		if g.state != INVENTORY {
 			g.window.SetView(g.gameView)
 
@@ -136,8 +138,7 @@ func (g *Game) run() {
 			for i, m := range g.mobs {
 				if m.Mob == nil {
 					mPos := m.Position()
-					for i := 0; i < 3; i++ {
-						//rand.Seed(time.Now().Unix())
+					for i := 0; i < 3; i++ { // Spill blood.
 						r := rand.Perm(3)
 						g.area.tiles[(mPos.X+r[0]-1)+(mPos.Y+r[2]-1)*g.area.width].SetColor(sf.ColorRed())
 					}
@@ -204,6 +205,7 @@ func (g *Game) tryPickUp() {
 	}
 }
 
+//listUsables lists all the items that have an effect, and prompts the user to use one.
 func (g *Game) listUsables() {
 	letter := 'a'
 	listText, _ := sf.NewText(Font)
@@ -312,6 +314,7 @@ func (g *Game) handleInput(key rune) (wait bool) {
 	case '5':
 		wait = false
 	case 'g':
+		wait = false
 		g.tryPickUp()
 	case 'u':
 		wait = true
@@ -329,7 +332,7 @@ func (g *Game) handleInput(key rune) (wait bool) {
 	case 'Q':
 		g.window.Close()
 	default:
-		fmt.Println("Can't recognize command: ", key)
+		fmt.Println("Can't recognize command: ", key, "\n")
 	}
 
 	return
