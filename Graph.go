@@ -12,15 +12,15 @@ type Graph struct {
 //NewGraph initializes a Graph struct with the size read on the configuration fille, and to the correct
 //TextureRect of that file.
 func NewGraph(x, y int) *Graph {
-	sprite := new(Graph)
+	graph := new(Graph)
 	var err error
-	sprite.Sprite, err = sf.NewSprite(SpriteSheet)
+	graph.Sprite, err = sf.NewSprite(SpriteSheet)
 	if err != nil {
 		panic(err)
 	}
-	sprite.size = readSettings().SpriteSize
-	sprite.setSprite(x, y)
-	return sprite
+	graph.size = readSettings().SpriteSize
+	graph.setSprite(x, y)
+	return graph
 }
 
 func (gr *Graph) setSprite(x, y int) {

@@ -1,7 +1,19 @@
 package main
 
 import (
+	"fmt"
+
 	sf "bitbucket.org/krepa098/gosfml2"
+)
+
+//Faction represents the different groups of factions an NPC or player can belong to.
+type Faction string
+
+const (
+	//ORCS faction belongs to any orc.
+	ORCS Faction = "orcs"
+	//PLAYER faction represents allies to the player, and the player itself.
+	PLAYER Faction = "player"
 )
 
 //Entity contains the data that represents any entity that can appear on an Area that is not a tile.
@@ -13,6 +25,7 @@ type Entity struct {
 
 	area *Area
 	*Mob
+	*Item
 
 	sprite *Graph
 }
@@ -23,10 +36,13 @@ type Mob struct {
 	curhp int
 	atk   int
 	def   int
+
+	inventory Inventory
+	faction   []Faction
 }
 
 //NewEntity initializes an Entity with the given data.
-func NewEntity(spriteX, spriteY, posX, posY int, a *Area) *Entity {
+func NewEntity(name string, spriteX, spriteY, posX, posY int, a *Area) *Entity {
 
 	sprite := NewGraph(spriteX, spriteY)
 
@@ -34,11 +50,13 @@ func NewEntity(spriteX, spriteY, posX, posY int, a *Area) *Entity {
 	sprite.SetPosition(sf.Vector2f{float32(posX * sprite.size), float32(posY * sprite.size)})
 
 	m := new(Mob)
-	m.maxhp, m.curhp = 120, 120
+	m.maxhp, m.curhp = 30, 30
 	m.atk = 10
-	m.def = 5
+	m.def = 4
+	m.faction = append(m.faction, PLAYER)
+	m.inventory = make(Inventory)
 
-	return &Entity{x: posX, y: posY, area: a, sprite: sprite, Mob: m, name: "You"}
+	return &Entity{x: posX, y: posY, area: a, sprite: sprite, Mob: m, name: name}
 }
 
 //NewEntityFromFile initializes an Entity with the data stored in the given JSON file.
@@ -59,6 +77,23 @@ func NewEntityFromFile(name string, x, y int, a *Area) *Entity {
 		e.maxhp, e.curhp = int(data["hp"].(float64)), int(data["hp"].(float64))
 		e.atk = int(data["atk"].(float64))
 		e.def = int(data["def"].(float64))
+
+		e.faction = make([]Faction, 1)
+		//e.faction = append(e.faction, data["faction"].([]interface{})...)
+		for _, v := range data["faction"].([]interface{}) {
+			e.faction = append(e.faction, Faction(v.(string)))
+		}
+	}
+	e.Item = nil
+	if data["type"].(string) == "item" {
+		e.Item = new(Item)
+		e.stack = 1
+		e.itype = ItemType(data["itemType"].(string))
+		switch e.itype {
+		case "potion":
+			e.effect = potionEffect
+			e.potency = int(data["potency"].(float64))
+		}
 	}
 
 	return e
@@ -66,25 +101,118 @@ func NewEntityFromFile(name string, x, y int, a *Area) *Entity {
 
 //Move should take ints between -1 and 1. That is, the direction where to move.
 //To specify any tile in the map Place or SetPosition should be used.
-func (e *Entity) Move(x, y int) {
+func (e *Entity) Move(x, y int, g *Game) {
+
+	dx := e.x + x
+	dy := e.y + y
+
+	ents := append(g.mobs, g.items...)
+
+	for _, oe := range ents {
+		if dx == oe.Position().X && dy == oe.Position().Y {
+			if e.name == "cursor" {
+				g.describe(oe)
+			} else if oe.Mob != nil {
+				e.attack(oe)
+				return
+			}
+		}
+	}
 	if !e.area.IsBlocked(e.x+x, e.y+y) {
-		dx := e.x + x
-		dy := e.y + y
 		e.Place(dx, dy)
 	}
 }
 
+func (e *Entity) moveTowards(oe *Entity, g *Game) {
+	if e.isAlliedWith(oe) {
+		return
+	}
+	ep := e.Position()   //Entity Position
+	oep := oe.Position() //Other Entity Position.
+
+	dx, dy := 0, 0
+
+	switch {
+	case ep.X < oep.X:
+		dx = 1
+	case ep.X > oep.X:
+		dx = -1
+	case ep.X == oep.X:
+		dx = 0
+	}
+
+	switch {
+	case ep.Y < oep.Y:
+		dy = 1
+	case ep.Y > oep.Y:
+		dy = -1
+	case ep.Y == oep.Y:
+		dy = 0
+	}
+
+	e.Move(dx, dy, g)
+}
+
 func (attacker *Entity) attack(defender *Entity) {
-	defender.curhp -= attacker.atk - defender.def
-	if defender.curhp <= 0 {
-		defender.die()
+	if !attacker.isAlliedWith(defender) {
+		curhp := defender.curhp
+		afterhp := curhp - (attacker.atk - defender.def)
+		if afterhp <= 0 {
+			defender.die()
+			return
+		}
+		if afterhp > curhp {
+			defender.curhp = curhp
+			return
+		}
+		defender.curhp = afterhp
+		damaged := curhp - defender.curhp
+		log(fmt.Sprintf("%v attacks %v for %v damage.", attacker.name, defender.name, damaged))
+
 	}
 }
 
 func (e *Entity) die() {
 	e.Mob = nil
 	e.sprite.SetColor(sf.ColorRed())
-	//TODO: make him an item.
+
+	//Becomes a corpse
+	e.name = e.name + "'s corpse"
+	e.Item = new(Item)
+}
+
+func (e *Entity) pickUp(i *Entity) {
+	log(fmt.Sprintf("You pickup: %v", i.name))
+	if e.inventory[i.name] != nil {
+		e.inventory[i.name].stack++ //Add a stack to it if we already had the item.
+		return
+	}
+	e.inventory[i.name] = i.Item
+}
+
+func (e *Entity) use(i *Item) {
+	i.effect(i, e.Mob)
+}
+
+func (m *Mob) heal(amount int) {
+	m.curhp += amount
+	if m.curhp > m.maxhp {
+		m.curhp = m.maxhp
+	}
+}
+
+func (e *Entity) isAlliedWith(oe *Entity) bool {
+
+	tef := e.faction
+	toef := oe.faction
+	for _, ef := range tef {
+		for _, oef := range toef {
+			if ef == oef {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 //Draw draws the sprite on the window.

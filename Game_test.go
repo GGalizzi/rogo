@@ -47,10 +47,10 @@ func TestHandleInput(t *testing.T) {
 }
 
 func TestSettings(t *testing.T) {
-	if actual := readSettings().resW; actual != 840 {
+	if actual := readSettings().resW; actual != 1024 {
 		t.Errorf("resW = %v, expected: %v", actual, 840)
 	}
-	if actual := readSettings().resH; actual != 780 {
+	if actual := readSettings().resH; actual != 720 {
 		t.Errorf("resH = %v, expected: %v", actual, 780)
 	}
 }
@@ -78,7 +78,7 @@ func TestStateCommands(t *testing.T) {
 func TestLookCommand(t *testing.T) {
 	g := MockNewGame()
 	orc := NewEntityFromFile("orc", 12, 13, g.area)
-	g.entities = append(g.entities, orc)
+	g.mobs = append(g.mobs, orc)
 
 	g.handleInput('x')
 	g.handleInput('2')
@@ -88,28 +88,34 @@ func TestLookCommand(t *testing.T) {
 	g.handleInput('8') // Go back up
 
 	newOrc := NewEntityFromFile("orc", 12, 13, g.area)
-	g.entities = append(g.entities, newOrc)
-	if l := len(g.entities); l != 2 {
-		t.Errorf("Length of g.entities should be 2. Got: %v", l)
+	g.mobs = append(g.mobs, newOrc)
+	if l := len(g.mobs); l != 2 {
+		t.Errorf("Length of g.mobs should be 2. Got: %v", l)
 	}
 
 	// This tests that more than one ent is described, and also that the text is
 	//cleared after describing ents in one tile.
 	g.handleInput('2')
 	if actual := g.lookText.GetString(); actual != "orc\norc" {
-		t.Errorf("Expected: \"orc\", Got:\n \"%v\"", actual)
+		t.Errorf("Expected: \"orc\norc\", Got:\n \"%v\"", actual)
 	}
 	g.handleInput('8')
 	if actual := g.lookText.GetString(); actual != "" {
 		t.Errorf("Expected empty string. Got:\n \"%v\"", actual)
+	}
+
+	g.items = append(g.items, NewEntityFromFile("potion", 13, 12, g.area))
+	g.handleInput('6')
+	if actual := g.lookText.GetString(); actual != "potion" {
+		t.Errorf("Expected \"potion\". Got:\n \"%v\"", actual)
 	}
 }
 
 func MockNewGame() *Game {
 	g := new(Game)
 	g.area = NewArea()
-	g.player = NewEntity(0, 0, 12, 12, g.area)
-	g.cursor = NewEntity(0, 0, 12, 12, g.area)
+	g.player = NewEntity("player", 0, 0, 12, 12, g.area)
+	g.cursor = NewEntity("cursor", 0, 0, 12, 12, g.area)
 	g.gameView = sf.NewView()
 
 	var err error

@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -46,12 +47,36 @@ func appendString(text *sf.Text, s string) {
 	}
 }
 
+func log(s string) {
+	logFile, err := os.OpenFile("log.txt", os.O_WRONLY|os.O_APPEND, 0660)
+	if err != nil {
+		panic(err)
+	}
+	defer logFile.Close()
+
+	logFile.WriteString(s + "\n")
+	if err != nil {
+		panic(err)
+	}
+}
+
+func removeFromList(a []*Entity, i int) []*Entity {
+	//a[len(a)-1], a[i], a = nil, a[len(a)-1], a[:len(a)-1] // Deletes completely
+	if len(a) <= i {
+		fmt.Printf("Trying to remove something that doesn't exist? %v [%d]\n", a, i)
+		return a
+	}
+	a[i], a = a[len(a)-1], a[:len(a)-1]
+
+	return a
+}
+
 //Settings struct defines all the variable settings of the game, which are to be stored in a JSON file.
 type Settings struct {
 	Resolution string `json:"resolution"`
 	SpriteSize int
-	resW       uint
-	resH       uint
+	resW       float32
+	resH       float32
 }
 
 //readSettings reads the settings file, and returns a struct with that data.
@@ -69,13 +94,13 @@ func readSettings() Settings {
 	}
 	rs := strings.Split(s.Resolution, "x")
 	resW, err := strconv.Atoi(rs[0])
-	s.resW = uint(resW)
+	s.resW = float32(resW)
 	if err != nil {
 		panic(s)
 	}
 
 	resH, err := strconv.Atoi(rs[1])
-	s.resH = uint(resH)
+	s.resH = float32(resH)
 	if err != nil {
 		panic(err)
 	}
