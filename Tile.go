@@ -13,7 +13,7 @@ type Tile struct {
 func NewTile() *Tile {
 	t := new(Tile)
 
-	t.Graph = NewGraph(1, 2)
+	t.Graph = NewGraph(1, 9)
 
 	return t
 }

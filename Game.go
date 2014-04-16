@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"math/rand"
 	"strconv"
 
 	sf "bitbucket.org/krepa098/gosfml2"
@@ -124,21 +125,29 @@ func (g *Game) run() {
 		if g.state != INVENTORY {
 			g.window.SetView(g.gameView)
 
+			g.Draw(g.area)
+
 			//Draw items
 			for _, i := range g.items {
 				g.Draw(i)
 			}
 
 			//Process mobs Ai, check for deaths and draw them.
-			for i, d := range g.mobs {
-				if d.Mob == nil {
-					g.items = append(g.items, d)
+			for i, m := range g.mobs {
+				if m.Mob == nil {
+					mPos := m.Position()
+					for i := 0; i < 3; i++ {
+						//rand.Seed(time.Now().Unix())
+						r := rand.Perm(3)
+						g.area.tiles[(mPos.X+r[0]-1)+(mPos.Y+r[2]-1)*g.area.width].SetColor(sf.ColorRed())
+					}
+					g.items = append(g.items, m)
 					g.mobs = removeFromList(g.mobs, i)
 				}
-				if !wait && d != g.player && d.Mob != nil {
-					g.processAI(d)
+				if !wait && m != g.player && m.Mob != nil {
+					g.processAI(m)
 				}
-				g.Draw(d)
+				g.Draw(m)
 			}
 
 			//Check if player died.
@@ -152,8 +161,6 @@ func (g *Game) run() {
 				g.Draw(g.cursor)
 				g.lookText.Draw(g.window, sf.DefaultRenderStates())
 			}
-
-			g.Draw(g.area)
 
 			g.window.Display()
 		}
