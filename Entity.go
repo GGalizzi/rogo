@@ -203,6 +203,10 @@ func (m *Mob) heal(amount int) {
 
 func (e *Entity) isAlliedWith(oe *Entity) bool {
 
+	if e.Mob == nil || oe.Mob == nil {
+		fmt.Printf("Tried to see if someone is allied with someone, one of those was an invalid pointer. %+v isAlliedWith? %+v", e.Mob, oe.Mob)
+		return true
+	}
 	tef := e.faction
 	toef := oe.faction
 	for _, ef := range tef {
