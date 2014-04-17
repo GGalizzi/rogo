@@ -7,7 +7,7 @@ func TestPlaceTile(t *testing.T) {
 
 	a.placeTile("wall", 3, 3)
 
-	if blocks := a.tiles[3+3*a.width].Blocks; !blocks {
+	if blocks := a.tiles[3+3*a.width].blocks; !blocks {
 		t.Errorf("The tile at 3,3 should be blocking. Blocks: %v", blocks)
 	}
 }
