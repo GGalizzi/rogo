@@ -212,6 +212,7 @@ func (e *Entity) tryOpen(t *Tile) {
 		for _, v := range e.inventory {
 			if v.itype == KEY && v.linkedDoor == t {
 				t.blocks = false
+				t.locked = false
 				t.setSprite(1, 9)
 				log("You unlock the door")
 				return
