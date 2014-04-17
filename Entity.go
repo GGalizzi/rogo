@@ -87,6 +87,7 @@ func NewEntityFromFile(name string, x, y int, a *Area) *Entity {
 	e.Item = nil
 	if data["type"].(string) == "item" {
 		e.Item = new(Item)
+		e.Item.name = e.name
 		e.stack = 1
 		e.itype = ItemType(data["itemType"].(string))
 		switch e.itype {
