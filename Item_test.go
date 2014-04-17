@@ -6,9 +6,9 @@ func TestInventory(t *testing.T) {
 	g := MockNewGame()
 	a := PrepareArea()
 
-	g.items = append(g.items, NewEntityFromFile("potion", 3, 3, a))
+	g.area.items = append(g.area.items, NewEntityFromFile("potion", 3, 3, a))
 	g.player.Place(3, 3)
-	g.mobs = append(g.mobs, g.player)
+	g.area.mobs = append(g.area.mobs, g.player)
 
 	g.handleInput('g')
 
@@ -16,7 +16,7 @@ func TestInventory(t *testing.T) {
 		t.Errorf("Expected player to have potion in inventory: %v", g.player.inventory)
 	}
 
-	g.items = append(g.items, NewEntityFromFile("potion", 3, 3, a))
+	g.area.items = append(g.area.items, NewEntityFromFile("potion", 3, 3, a))
 
 	g.handleInput('g')
 

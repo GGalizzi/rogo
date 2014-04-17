@@ -87,12 +87,14 @@ func NewEntityFromFile(name string, x, y int, a *Area) *Entity {
 	e.Item = nil
 	if data["type"].(string) == "item" {
 		e.Item = new(Item)
+		e.Item.name = e.name
 		e.stack = 1
 		e.itype = ItemType(data["itemType"].(string))
 		switch e.itype {
 		case "potion":
 			e.effect = potionEffect
 			e.potency = int(data["potency"].(float64))
+		case "key":
 		}
 	}
 
@@ -106,7 +108,7 @@ func (e *Entity) Move(x, y int, g *Game) {
 	dx := e.x + x
 	dy := e.y + y
 
-	ents := append(g.mobs, g.items...)
+	ents := append(g.area.mobs, g.area.items...)
 
 	for _, oe := range ents {
 		if dx == oe.Position().X && dy == oe.Position().Y {
@@ -118,8 +120,13 @@ func (e *Entity) Move(x, y int, g *Game) {
 			}
 		}
 	}
-	if !e.area.IsBlocked(e.x+x, e.y+y) {
+	if !e.area.IsBlocked(dx, dy) {
 		e.Place(dx, dy)
+		return
+	}
+
+	if e.area.isDoor(dx, dy) {
+		e.tryOpen(g.area.tiles[dx+dy*g.area.width])
 	}
 }
 
@@ -199,6 +206,25 @@ func (m *Mob) heal(amount int) {
 	if m.curhp > m.maxhp {
 		m.curhp = m.maxhp
 	}
+}
+
+func (e *Entity) tryOpen(t *Tile) {
+	if t.locked {
+		for _, v := range e.inventory {
+			if v.itype == KEY && v.linkedDoor == t {
+				t.blocks = false
+				t.setSprite(1, 9)
+				log("You unlock the door")
+				return
+			}
+		}
+		log("The door is locked.")
+		return
+	}
+
+	t.blocks = false
+	t.setSprite(1, 9)
+	return
 }
 
 func (e *Entity) isAlliedWith(oe *Entity) bool {
