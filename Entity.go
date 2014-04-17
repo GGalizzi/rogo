@@ -119,8 +119,13 @@ func (e *Entity) Move(x, y int, g *Game) {
 			}
 		}
 	}
-	if !e.area.IsBlocked(e.x+x, e.y+y) {
+	if !e.area.IsBlocked(dx, dy) {
 		e.Place(dx, dy)
+		return
+	}
+
+	if e.area.isDoor(dx, dy) {
+		e.tryOpen(g.area.tiles[dx+dy*g.area.width])
 	}
 }
 
@@ -200,6 +205,17 @@ func (m *Mob) heal(amount int) {
 	if m.curhp > m.maxhp {
 		m.curhp = m.maxhp
 	}
+}
+
+func (e *Entity) tryOpen(t *Tile) {
+	if t.locked {
+		log("The door is locked.")
+		return
+	}
+
+	t.blocks = false
+	t.setSprite(1, 9)
+	return
 }
 
 func (e *Entity) isAlliedWith(oe *Entity) bool {

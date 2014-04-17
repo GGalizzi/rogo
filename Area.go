@@ -64,3 +64,7 @@ func (a *Area) placeTile(name string, x, y int) {
 func (a *Area) IsBlocked(x, y int) bool {
 	return a.tiles[x+y*a.width].blocks
 }
+
+func (a *Area) isDoor(x, y int) bool {
+	return a.tiles[x+y*a.width].door
+}
