@@ -60,12 +60,12 @@ func NewGame() *Game {
 	g.state = PLAY
 
 	g.area = NewArea()
-	g.player = NewEntity("player", 0, 0, 3, 4, g.area)
-	g.cursor = NewEntity("cursor", 0, 0, 2, 2, g.area)
+	g.player = NewEntity("player", 0, 0, 3, 4)
+	g.cursor = NewEntity("cursor", 0, 0, 2, 2)
 
 	for i := 0; i < 3; i++ {
-		g.area.mobs = append(g.area.mobs, NewEntityFromFile("orc", 3+i, 1, g.area))
-		g.area.items = append(g.area.items, NewEntityFromFile("potion", 4, 4, g.area))
+		g.area.mobs = append(g.area.mobs, NewEntityFromFile("orc", 3+i, 1))
+		g.area.items = append(g.area.items, NewEntityFromFile("potion", 4, 4))
 	}
 	g.area.mobs = append(g.area.mobs, g.player)
 

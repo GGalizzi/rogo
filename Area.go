@@ -60,7 +60,7 @@ func (a *Area) placeTile(name string, x, y int) {
 		t.door = true
 
 		//Call some function to determine the location of the key for the door.
-		key := NewEntityFromFile("key", x-5, y, a)
+		key := NewEntityFromFile("key", x-5, y)
 		key.linkedDoor = t
 
 		a.items = append(a.items, key)

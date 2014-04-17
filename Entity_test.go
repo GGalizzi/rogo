@@ -7,8 +7,7 @@ import (
 )
 
 func TestNewMobFromFile(t *testing.T) {
-	a := PrepareArea()
-	e := NewEntityFromFile("orc", 3, 3, a)
+	e := NewEntityFromFile("orc", 3, 3)
 
 	ss := readSettings().SpriteSize
 	if pos, vec := e.Position(), e.PosVector(); pos.X != 3 || pos.Y != 3 || vec.X != float32(3*ss) || vec.Y != float32(3*ss) {
@@ -24,8 +23,7 @@ func TestNewMobFromFile(t *testing.T) {
 }
 
 func TestBasicAi(t *testing.T) {
-	a := PrepareArea()
-	e := NewEntityFromFile("orc", 3, 3, a)
+	e := NewEntityFromFile("orc", 3, 3)
 	g := MockNewGame()
 
 	op := e.Position()
@@ -61,10 +59,9 @@ func TestBasicAi(t *testing.T) {
 }
 
 func TestFactionAttack(t *testing.T) {
-	a := PrepareArea()
 
-	orc1 := NewEntityFromFile("orc", 3, 3, a)
-	orc2 := NewEntityFromFile("orc", 3, 4, a)
+	orc1 := NewEntityFromFile("orc", 3, 3)
+	orc2 := NewEntityFromFile("orc", 3, 4)
 
 	g := MockNewGame()
 	g.area.mobs = append(g.area.mobs, orc1, orc2)
@@ -78,10 +75,9 @@ func TestFactionAttack(t *testing.T) {
 }
 
 func TestMobDeath(t *testing.T) {
-	a := PrepareArea()
 	g := MockNewGame()
 	g.player.Place(3, 3)
-	orc := NewEntityFromFile("orc", 3, 4, a)
+	orc := NewEntityFromFile("orc", 3, 4)
 	orc.curhp = 1
 	g.area.mobs = append(g.area.mobs, orc, g.player)
 
@@ -94,12 +90,11 @@ func TestMobDeath(t *testing.T) {
 }
 
 func TestPlayerAttack(t *testing.T) {
-	a := PrepareArea()
 
 	g := MockNewGame()
 
 	g.player.SetPosition(sf.Vector2i{3, 3})
-	orc := NewEntityFromFile("orc", 3, 4, a)
+	orc := NewEntityFromFile("orc", 3, 4)
 
 	g.area.mobs = append(g.area.mobs, g.player, orc)
 

@@ -23,7 +23,6 @@ type Entity struct {
 
 	name string
 
-	area *Area
 	*Mob
 	*Item
 
@@ -42,7 +41,7 @@ type Mob struct {
 }
 
 //NewEntity initializes an Entity with the given data.
-func NewEntity(name string, spriteX, spriteY, posX, posY int, a *Area) *Entity {
+func NewEntity(name string, spriteX, spriteY, posX, posY int) *Entity {
 
 	sprite := NewGraph(spriteX, spriteY)
 
@@ -56,14 +55,14 @@ func NewEntity(name string, spriteX, spriteY, posX, posY int, a *Area) *Entity {
 	m.faction = append(m.faction, PLAYER)
 	m.inventory = make(Inventory)
 
-	return &Entity{x: posX, y: posY, area: a, sprite: sprite, Mob: m, name: name}
+	return &Entity{x: posX, y: posY, sprite: sprite, Mob: m, name: name}
 }
 
 //NewEntityFromFile initializes an Entity with the data stored in the given JSON file.
-func NewEntityFromFile(name string, x, y int, a *Area) *Entity {
+func NewEntityFromFile(name string, x, y int) *Entity {
 
 	data := ReadJSON("entities", name)
-	e := &Entity{x: x, y: y, area: a, name: name}
+	e := &Entity{x: x, y: y, name: name}
 
 	sx, sy := int(data["spriteX"].(float64)), int(data["spriteY"].(float64))
 
@@ -120,12 +119,12 @@ func (e *Entity) Move(x, y int, g *Game) {
 			}
 		}
 	}
-	if !e.area.IsBlocked(dx, dy) {
+	if !g.area.IsBlocked(dx, dy) {
 		e.Place(dx, dy)
 		return
 	}
 
-	if e.area.isDoor(dx, dy) {
+	if g.area.isDoor(dx, dy) {
 		e.tryOpen(g.area.tiles[dx+dy*g.area.width])
 	}
 }
