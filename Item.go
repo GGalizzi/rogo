@@ -11,10 +11,13 @@ const (
 )
 
 type Item struct {
-	effect func(*Item, *Mob)
-	itype  ItemType
+	name  string
+	itype ItemType
 
-	name    string
+	//Key stuff
+	linkedDoor *Tile
+
+	effect  func(*Item, *Mob)
 	potency int
 	stack   int
 }

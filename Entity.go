@@ -94,6 +94,7 @@ func NewEntityFromFile(name string, x, y int, a *Area) *Entity {
 		case "potion":
 			e.effect = potionEffect
 			e.potency = int(data["potency"].(float64))
+		case "key":
 		}
 	}
 
@@ -209,6 +210,14 @@ func (m *Mob) heal(amount int) {
 
 func (e *Entity) tryOpen(t *Tile) {
 	if t.locked {
+		for _, v := range e.inventory {
+			if v.itype == KEY && v.linkedDoor == t {
+				t.blocks = false
+				t.setSprite(1, 9)
+				log("You unlock the door")
+				return
+			}
+		}
 		log("The door is locked.")
 		return
 	}

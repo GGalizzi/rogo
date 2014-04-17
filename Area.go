@@ -59,6 +59,11 @@ func (a *Area) placeTile(name string, x, y int) {
 		t.locked = locked.(bool)
 		t.door = true
 
+		//Call some function to determine the location of the key for the door.
+		key := NewEntityFromFile("key", x-5, y, a)
+		key.linkedDoor = t
+
+		a.items = append(a.items, key)
 	}
 
 	t.setSprite(int(data["spriteX"].(float64)), int(data["spriteY"].(float64)))

@@ -6,6 +6,7 @@ import sf "bitbucket.org/krepa098/gosfml2"
 type Tile struct {
 	*Graph
 
+	//Door stuff
 	locked bool
 	door   bool
 
