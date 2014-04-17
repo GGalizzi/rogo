@@ -40,9 +40,6 @@ type Game struct {
 	player *Entity
 	cursor *Entity
 
-	mobs  []*Entity
-	items []*Entity
-
 	state State
 	Settings
 
@@ -67,10 +64,10 @@ func NewGame() *Game {
 	g.cursor = NewEntity("cursor", 0, 0, 2, 2, g.area)
 
 	for i := 0; i < 3; i++ {
-		g.mobs = append(g.mobs, NewEntityFromFile("orc", 3+i, 1, g.area))
-		g.items = append(g.items, NewEntityFromFile("potion", 4, 4, g.area))
+		g.area.mobs = append(g.area.mobs, NewEntityFromFile("orc", 3+i, 1, g.area))
+		g.area.items = append(g.area.items, NewEntityFromFile("potion", 4, 4, g.area))
 	}
-	g.mobs = append(g.mobs, g.player)
+	g.area.mobs = append(g.area.mobs, g.player)
 
 	g.gameView = sf.NewView()
 	g.gameView.SetCenter(g.player.PosVector())
@@ -130,20 +127,20 @@ func (g *Game) run() {
 			g.Draw(g.area)
 
 			//Draw items
-			for _, i := range g.items {
+			for _, i := range g.area.items {
 				g.Draw(i)
 			}
 
 			//Process mobs Ai, check for deaths and draw them.
-			for i, m := range g.mobs {
+			for i, m := range g.area.mobs {
 				if m.Mob == nil {
 					mPos := m.Position()
 					for i := 0; i < 3; i++ { // Spill blood.
 						r := rand.Perm(3)
 						g.area.tiles[(mPos.X+r[0]-1)+(mPos.Y+r[2]-1)*g.area.width].SetColor(sf.ColorRed())
 					}
-					g.items = append(g.items, m)
-					g.mobs = removeFromList(g.mobs, i)
+					g.area.items = append(g.area.items, m)
+					g.area.mobs = removeFromList(g.area.mobs, i)
 				}
 				if !wait && m != g.player && m.Mob != nil {
 					g.processAI(m)
@@ -196,10 +193,10 @@ func (g *Game) openLog() {
 }
 
 func (g *Game) tryPickUp() {
-	for l, i := range g.items {
+	for l, i := range g.area.items {
 		if g.player.Position() == i.Position() {
 			g.player.pickUp(i)
-			g.items = removeFromList(g.items, l)
+			g.area.items = removeFromList(g.area.items, l)
 			return
 		}
 	}

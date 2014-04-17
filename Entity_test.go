@@ -31,7 +31,7 @@ func TestBasicAi(t *testing.T) {
 	op := e.Position()
 	opv := e.PosVector()
 
-	g.mobs = append(g.mobs, e, g.player)
+	g.area.mobs = append(g.area.mobs, e, g.player)
 
 	g.processAI(e)
 
@@ -67,7 +67,7 @@ func TestFactionAttack(t *testing.T) {
 	orc2 := NewEntityFromFile("orc", 3, 4, a)
 
 	g := MockNewGame()
-	g.mobs = append(g.mobs, orc1, orc2)
+	g.area.mobs = append(g.area.mobs, orc1, orc2)
 
 	orc2hp := orc2.curhp
 	orc1.moveTowards(orc2, g)
@@ -83,7 +83,7 @@ func TestMobDeath(t *testing.T) {
 	g.player.Place(3, 3)
 	orc := NewEntityFromFile("orc", 3, 4, a)
 	orc.curhp = 1
-	g.mobs = append(g.mobs, orc, g.player)
+	g.area.mobs = append(g.area.mobs, orc, g.player)
 
 	g.handleInput('2')
 
@@ -101,7 +101,7 @@ func TestPlayerAttack(t *testing.T) {
 	g.player.SetPosition(sf.Vector2i{3, 3})
 	orc := NewEntityFromFile("orc", 3, 4, a)
 
-	g.mobs = append(g.mobs, g.player, orc)
+	g.area.mobs = append(g.area.mobs, g.player, orc)
 
 	prevHP := orc.curhp
 	g.handleInput('2')

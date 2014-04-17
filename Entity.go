@@ -107,7 +107,7 @@ func (e *Entity) Move(x, y int, g *Game) {
 	dx := e.x + x
 	dy := e.y + y
 
-	ents := append(g.mobs, g.items...)
+	ents := append(g.area.mobs, g.area.items...)
 
 	for _, oe := range ents {
 		if dx == oe.Position().X && dy == oe.Position().Y {

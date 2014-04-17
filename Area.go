@@ -9,6 +9,9 @@ type Area struct {
 	width  int
 	height int
 
+	mobs  []*Entity
+	items []*Entity
+
 	tiles []*Tile
 }
 
@@ -55,6 +58,7 @@ func (a *Area) placeTile(name string, x, y int) {
 	if locked := data["locked"]; locked != nil {
 		t.locked = locked.(bool)
 		t.door = true
+
 	}
 
 	t.setSprite(int(data["spriteX"].(float64)), int(data["spriteY"].(float64)))
