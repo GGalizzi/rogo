@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math/rand"
 	"strconv"
 
 	sf "bitbucket.org/krepa098/gosfml2"
@@ -27,7 +28,8 @@ func NewArea() *Area {
 		a.tiles[i] = NewTile()
 	}
 
-	a.genFromPerlin(13412)
+	seed := rand.Uint32()
+	a.genFromPerlin(uint(seed))
 
 	return a
 }
@@ -55,7 +57,6 @@ func (a *Area) genFromPerlin(seed uint) {
 
 			n := pn.noise(float64(10*x), float64(10*y), float64(0.8))
 
-			log(strconv.FormatFloat(n, 'f', 4, 64))
 			xx := int(X)
 			yy := int(Y)
 			if n < 0.33 || xx == 0 || xx == a.width-1 || yy == 0 || yy == a.height-1 {
@@ -67,8 +68,42 @@ func (a *Area) genFromPerlin(seed uint) {
 
 //Draw draws all the tiles that make the area.
 func (a *Area) Draw(window *sf.RenderWindow) {
-	for x := 0; x < a.width; x++ {
-		for y := 0; y < a.height; y++ {
+	var fromX int
+	var toX int
+	var fromY int
+	var toY int
+
+	sight := 8
+
+	player := a.mobs[0]
+	if player.x-sight < 0 {
+		fromX = 0
+	} else {
+		fromX = player.x - sight
+	}
+
+	if player.x+sight > a.width {
+		toX = a.width
+	} else {
+		toX = player.x + sight
+	}
+
+	if player.y-sight < 0 {
+		fromY = 0
+	} else {
+		fromY = player.y - sight
+	}
+
+	if player.y+sight > a.height {
+		toY = a.height
+	} else {
+		toY = player.y + sight
+	}
+
+	log(strconv.Itoa(player.x))
+
+	for x := fromX; x < toX; x++ {
+		for y := fromY; y < toY; y++ {
 			a.tiles[x+y*a.width].Draw(window, x, y)
 		}
 	}
