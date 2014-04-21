@@ -1,6 +1,8 @@
 package main
 
 import (
+	"strconv"
+
 	sf "bitbucket.org/krepa098/gosfml2"
 )
 
@@ -17,7 +19,7 @@ type Area struct {
 
 //NewArea initializes an Area struct with a basic map.
 func NewArea() *Area {
-	a := &Area{width: 20, height: 20}
+	a := &Area{width: 220, height: 120}
 
 	a.tiles = make([]*Tile, a.height*a.width)
 
@@ -25,6 +27,12 @@ func NewArea() *Area {
 		a.tiles[i] = NewTile()
 	}
 
+	a.genFromPerlin(13412)
+
+	return a
+}
+
+func (a *Area) genTestRoom() {
 	for x := 0; x < a.width; x++ {
 		for y := 0; y < a.height; y++ {
 			if y == 0 || y == a.height-1 || x == 0 || x == a.width-1 || (x == a.width/2) {
@@ -35,8 +43,26 @@ func NewArea() *Area {
 			}
 		}
 	}
+}
 
-	return a
+func (a *Area) genFromPerlin(seed uint) {
+	pn := NewPerlin(seed)
+
+	for Y := 0.0; Y < float64(a.height); Y++ {
+		for X := 0.0; X < float64(a.width); X++ {
+			x := X / float64(a.width)
+			y := Y / float64(a.height)
+
+			n := pn.noise(float64(10*x), float64(10*y), float64(0.8))
+
+			log(strconv.FormatFloat(n, 'f', 4, 64))
+			xx := int(X)
+			yy := int(Y)
+			if n < 0.33 || xx == 0 || xx == a.width-1 || yy == 0 || yy == a.height-1 {
+				a.placeTile("wall", xx, yy)
+			}
+		}
+	}
 }
 
 //Draw draws all the tiles that make the area.

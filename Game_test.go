@@ -113,7 +113,7 @@ func TestLookCommand(t *testing.T) {
 
 func MockNewGame() *Game {
 	g := new(Game)
-	g.area = NewArea()
+	g.area = PrepareArea()
 	g.player = NewEntity("player", 0, 0, 12, 12)
 	g.cursor = NewEntity("cursor", 0, 0, 12, 12)
 	g.gameView = sf.NewView()
