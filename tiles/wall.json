@@ -1,5 +1,6 @@
 {
   "spriteX": 0,
   "spriteY": 9,
-  "blocks": true
+  "blocks": true,
+  "color": [122, 30, 20]
 }

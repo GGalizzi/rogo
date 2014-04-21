@@ -61,6 +61,10 @@ func (a *Area) genFromPerlin(seed uint) {
 			yy := int(Y)
 			if n < 0.33 || xx == 0 || xx == a.width-1 || yy == 0 || yy == a.height-1 {
 				a.placeTile("wall", xx, yy)
+				continue
+			}
+			if n > 0.8 {
+				a.placeTile("water", xx, yy)
 			}
 		}
 	}
@@ -115,6 +119,12 @@ func (a *Area) placeTile(name string, x, y int) {
 
 	t := a.tiles[x+y*a.width]
 	t.blocks = data["blocks"].(bool)
+	if data["color"] != nil {
+		r := data["color"].([]interface{})[0].(float64)
+		g := data["color"].([]interface{})[1].(float64)
+		b := data["color"].([]interface{})[2].(float64)
+		t.SetColor(sf.Color{byte(r), byte(g), byte(b), 255})
+	}
 
 	if locked := data["locked"]; locked != nil {
 		t.locked = locked.(bool)
