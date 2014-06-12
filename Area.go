@@ -2,7 +2,6 @@ package main
 
 import (
 	"math/rand"
-	"strconv"
 
 	sf "bitbucket.org/krepa098/gosfml2"
 )
@@ -103,8 +102,6 @@ func (a *Area) Draw(window *sf.RenderWindow) {
 	} else {
 		toY = player.y + sight
 	}
-
-	log(strconv.Itoa(player.x))
 
 	for x := fromX; x < toX; x++ {
 		for y := fromY; y < toY; y++ {
