@@ -34,6 +34,14 @@ func TestDownStairs(t *testing.T) {
 	g.area.placeTile("downStair", 3, 3)
 	p := g.player
 	p.Place(2, 3)
+	g.handleInput('>')
+
+	if g.area.name == prevAreaName {
+		t.Logf("Area didn't change, no stair here. %s -> %s", prevAreaName, g.area.name)
+	} else {
+		t.Errorf("Area changed when there wasn't a stair there.")
+	}
+
 	p.Move(1, 0, g)
 
 	g.handleInput('>')

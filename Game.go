@@ -325,17 +325,15 @@ func (g *Game) handleInput(key rune) (wait bool) {
 		g.openLog()
 
 	case '>':
-		if g.area.tiles[g.player.x+g.player.y*g.area.width].downStair {
-			g.switchArea()
-			g.area.genTestRoom()
-			g.area.placeTile("upStair", g.player.x, g.player.y)
+		if stair := g.area.tiles[g.player.x+g.player.y*g.area.width]; stair.downStair {
+			g.switchArea(stair)
 		} else {
 			log("No stairs there.")
 		}
 
 	case '<':
-		if g.area.tiles[g.player.x+g.player.y*g.area.width].upStair {
-			g.switchArea()
+		if stair := g.area.tiles[g.player.x+g.player.y*g.area.width]; stair.upStair {
+			g.switchArea(stair)
 		} else {
 			log("No stairs there.")
 		}
@@ -349,9 +347,22 @@ func (g *Game) handleInput(key rune) (wait bool) {
 	return
 }
 
-func (g *Game) switchArea() {
-	g.area = NewArea()
-	g.area.mobs = append(g.area.mobs, g.player)
+//Logic for changing areas when walking up/down stairs.
+//Needs a stair arguments to check if the stair has already been used.
+func (g *Game) switchArea(stair *Tile) {
+	if stair.linkedArea == nil {
+		prevArea := g.area
+		g.area = NewArea()
+		g.area.mobs = append(g.area.mobs, g.player)
+		stair.linkedArea = g.area
+		if stair.downStair {
+			g.area.genTestRoom()
+			returnStair := g.area.placeTile("upStair", g.player.x, g.player.y)
+			returnStair.linkedArea = prevArea
+		}
+	} else {
+		g.area = stair.linkedArea
+	}
 }
 
 func (g *Game) inventoryInput(key rune, items map[rune]*Item) (done bool, used *Item) {

@@ -128,8 +128,8 @@ func (a *Area) Draw(window *sf.RenderWindow) {
 	}
 }
 
-//placeTile places the given tile by reading from the JSON that contains its data.
-func (a *Area) placeTile(name string, x, y int) {
+//placeTile places the given tile by reading from the JSON that contains its data. It returns a pointer to the set tile.
+func (a *Area) placeTile(name string, x, y int) *Tile {
 	data := ReadJSON("tiles", name)
 
 	t := a.tiles[x+y*a.width]
@@ -161,6 +161,7 @@ func (a *Area) placeTile(name string, x, y int) {
 	}
 
 	t.setSprite(int(data["spriteX"].(float64)), int(data["spriteY"].(float64)))
+	return t
 }
 
 //IsBlocked checks if the tile in the given coords blocks movement.
