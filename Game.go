@@ -124,6 +124,7 @@ func (g *Game) run() {
 		if g.state != INVENTORY {
 			g.window.SetView(g.gameView)
 
+			//Draw area (tiles)
 			g.Draw(g.area)
 
 			//Draw items
@@ -323,6 +324,20 @@ func (g *Game) handleInput(key rune) (wait bool) {
 		g.state = LOG
 		g.openLog()
 
+	case '>':
+		if stair := g.area.tiles[g.player.x+g.player.y*g.area.width]; stair.downStair {
+			g.switchArea(stair)
+		} else {
+			log("No stairs there.")
+		}
+
+	case '<':
+		if stair := g.area.tiles[g.player.x+g.player.y*g.area.width]; stair.upStair {
+			g.switchArea(stair)
+		} else {
+			log("No stairs there.")
+		}
+
 	case 'Q':
 		g.window.Close()
 	default:
@@ -330,6 +345,34 @@ func (g *Game) handleInput(key rune) (wait bool) {
 	}
 
 	return
+}
+
+//Logic for changing areas when walking up/down stairs.
+//Needs a stair arguments to check if the stair has already been used.
+func (g *Game) switchArea(stair *Tile) {
+	if stair.linkedArea == nil {
+		prevArea := g.area
+		g.area = NewArea()
+		g.area.mobs = append(g.area.mobs, g.player)
+		stair.linkedArea = g.area
+		if stair.downStair {
+			g.area.genTestRoom()
+			rx := rand.Intn(14) + 1
+			ry := rand.Intn(13) + 1
+			returnStair := g.area.placeTile("upStair", rx, ry)
+			g.player.SetPosition(sf.Vector2i{rx, ry})
+			returnStair.linkedArea = prevArea
+			returnStair.linkedStair = stair
+			stair.linkedStair = returnStair
+		}
+	} else {
+		g.area = stair.linkedArea
+		posf := stair.linkedStair.GetPosition()
+		px := int(posf.X) / readSettings().SpriteSize
+		py := int(posf.Y) / readSettings().SpriteSize
+		g.player.SetPosition(sf.Vector2i{px, py})
+	}
+
 }
 
 func (g *Game) inventoryInput(key rune, items map[rune]*Item) (done bool, used *Item) {

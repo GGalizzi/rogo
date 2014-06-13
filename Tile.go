@@ -6,11 +6,18 @@ import sf "bitbucket.org/krepa098/gosfml2"
 type Tile struct {
 	*Graph
 
+	//Generic
+	blocks bool
+
 	//Door stuff
 	locked bool
 	door   bool
 
-	blocks bool
+	//Stairs
+	downStair   bool
+	upStair     bool
+	linkedArea  *Area
+	linkedStair *Tile
 }
 
 //NewTile initializes a Tile with basic (floor) data.

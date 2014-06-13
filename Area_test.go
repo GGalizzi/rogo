@@ -26,8 +26,36 @@ func TestMoveToBlockedTile(t *testing.T) {
 	}
 }
 
+func TestDownStairs(t *testing.T) {
+	g := MockNewGame()
+	prevAreaName := g.area.name
+	t.Logf("PrevArea: %s", prevAreaName)
+
+	g.area.placeTile("downStair", 3, 3)
+	p := g.player
+	p.Place(2, 3)
+	g.handleInput('>')
+
+	if g.area.name == prevAreaName {
+		t.Logf("Area didn't change, no stair here. %s -> %s", prevAreaName, g.area.name)
+	} else {
+		t.Errorf("Area changed when there wasn't a stair there.")
+	}
+
+	p.Move(1, 0, g)
+
+	g.handleInput('>')
+
+	if g.area.name == prevAreaName {
+		t.Errorf("Area should have changed: PrevArea: %s, CurArea: %v", prevAreaName, g.area.name)
+	}
+
+	t.Logf("CurArea: %s", g.area.name)
+}
+
 func PrepareArea() *Area {
 	a := new(Area)
+	a.name = "Testing Area"
 	a.width = 20
 	a.height = 20
 	a.tiles = make([]*Tile, a.height*a.width)
