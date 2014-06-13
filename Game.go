@@ -357,12 +357,22 @@ func (g *Game) switchArea(stair *Tile) {
 		stair.linkedArea = g.area
 		if stair.downStair {
 			g.area.genTestRoom()
-			returnStair := g.area.placeTile("upStair", g.player.x, g.player.y)
+			rx := rand.Intn(14) + 1
+			ry := rand.Intn(13) + 1
+			returnStair := g.area.placeTile("upStair", rx, ry)
+			g.player.SetPosition(sf.Vector2i{rx, ry})
 			returnStair.linkedArea = prevArea
+			returnStair.linkedStair = stair
+			stair.linkedStair = returnStair
 		}
 	} else {
 		g.area = stair.linkedArea
+		posf := stair.linkedStair.GetPosition()
+		px := int(posf.X) / readSettings().SpriteSize
+		py := int(posf.Y) / readSettings().SpriteSize
+		g.player.SetPosition(sf.Vector2i{px, py})
 	}
+
 }
 
 func (g *Game) inventoryInput(key rune, items map[rune]*Item) (done bool, used *Item) {

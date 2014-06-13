@@ -49,6 +49,10 @@ func (a *Area) genTestRoom() {
 		for y := 0; y < a.height; y++ {
 			if y == 0 || y == a.height-1 || x == 0 || x == a.width-1 || (x == a.width/2) {
 				a.placeTile("wall", x, y)
+			} else {
+				if rand.Intn(100) < 2 {
+					a.mobs = append(a.mobs, NewEntityFromFile("orc", x, y))
+				}
 			}
 			if y == a.height/2 && x == a.width/2 {
 				a.placeTile("lockedDoor", x, y)

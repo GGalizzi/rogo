@@ -14,9 +14,10 @@ type Tile struct {
 	door   bool
 
 	//Stairs
-	downStair  bool
-	upStair    bool
-	linkedArea *Area
+	downStair   bool
+	upStair     bool
+	linkedArea  *Area
+	linkedStair *Tile
 }
 
 //NewTile initializes a Tile with basic (floor) data.
