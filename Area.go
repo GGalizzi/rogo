@@ -8,6 +8,8 @@ import (
 
 //Area contains data that relates to an area, a map, a dungeon. Basically, a set of tiles.
 type Area struct {
+	name string
+
 	width  int
 	height int
 
@@ -19,13 +21,9 @@ type Area struct {
 
 //NewArea initializes an Area struct with a basic map.
 func NewArea() *Area {
-	a := &Area{width: 220, height: 120}
+	a := new(Area)
 
-	a.tiles = make([]*Tile, a.height*a.width)
-
-	for i := range a.tiles {
-		a.tiles[i] = NewTile()
-	}
+	a.prepareArea()
 
 	seed := rand.Uint32()
 	a.genFromPerlin(uint(seed))
@@ -33,7 +31,20 @@ func NewArea() *Area {
 	return a
 }
 
+func (a *Area) prepareArea() {
+	a.tiles = make([]*Tile, a.height*a.width)
+
+	for i := range a.tiles {
+		a.tiles[i] = NewTile()
+	}
+}
+
 func (a *Area) genTestRoom() {
+	a.width = 30
+	a.height = 15
+	a.prepareArea()
+	a.name = "Test Room"
+
 	for x := 0; x < a.width; x++ {
 		for y := 0; y < a.height; y++ {
 			if y == 0 || y == a.height-1 || x == 0 || x == a.width-1 || (x == a.width/2) {
@@ -47,6 +58,11 @@ func (a *Area) genTestRoom() {
 }
 
 func (a *Area) genFromPerlin(seed uint) {
+	a.width = 222
+	a.height = 122
+	a.prepareArea()
+	a.name = "Overworld"
+
 	pn := NewPerlin(seed)
 
 	for Y := 0.0; Y < float64(a.height); Y++ {
@@ -67,6 +83,8 @@ func (a *Area) genFromPerlin(seed uint) {
 			}
 		}
 	}
+
+	a.placeTile("downStair", 10, 10)
 }
 
 //Draw draws all the tiles that make the area.
@@ -76,7 +94,7 @@ func (a *Area) Draw(window *sf.RenderWindow) {
 	var fromY int
 	var toY int
 
-	sight := 8
+	sight := 28
 
 	player := a.mobs[0]
 	if player.x-sight < 0 {
@@ -132,6 +150,14 @@ func (a *Area) placeTile(name string, x, y int) {
 		key.linkedDoor = t
 
 		a.items = append(a.items, key)
+	}
+
+	if stair := data["stair"]; stair != nil {
+		if stair.(string) == "downStair" {
+			t.downStair = true
+		} else {
+			t.upStair = true
+		}
 	}
 
 	t.setSprite(int(data["spriteX"].(float64)), int(data["spriteY"].(float64)))

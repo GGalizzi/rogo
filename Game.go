@@ -124,6 +124,7 @@ func (g *Game) run() {
 		if g.state != INVENTORY {
 			g.window.SetView(g.gameView)
 
+			//Draw area (tiles)
 			g.Draw(g.area)
 
 			//Draw items
@@ -323,6 +324,22 @@ func (g *Game) handleInput(key rune) (wait bool) {
 		g.state = LOG
 		g.openLog()
 
+	case '>':
+		if g.area.tiles[g.player.x+g.player.y*g.area.width].downStair {
+			g.switchArea()
+			g.area.genTestRoom()
+			g.area.placeTile("upStair", g.player.x, g.player.y)
+		} else {
+			log("No stairs there.")
+		}
+
+	case '<':
+		if g.area.tiles[g.player.x+g.player.y*g.area.width].upStair {
+			g.switchArea()
+		} else {
+			log("No stairs there.")
+		}
+
 	case 'Q':
 		g.window.Close()
 	default:
@@ -330,6 +347,11 @@ func (g *Game) handleInput(key rune) (wait bool) {
 	}
 
 	return
+}
+
+func (g *Game) switchArea() {
+	g.area = NewArea()
+	g.area.mobs = append(g.area.mobs, g.player)
 }
 
 func (g *Game) inventoryInput(key rune, items map[rune]*Item) (done bool, used *Item) {

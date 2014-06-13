@@ -11,6 +11,10 @@ type Tile struct {
 	door   bool
 
 	blocks bool
+
+	//Stairs
+	downStair bool
+	upStair   bool
 }
 
 //NewTile initializes a Tile with basic (floor) data.
