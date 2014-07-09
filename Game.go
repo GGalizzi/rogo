@@ -40,7 +40,7 @@ type Announcement struct {
 	text *sf.Text
 }
 
-func NewAnnouncement() *Announcement {
+func NewAnnouncement(s string) *Announcement {
 	a := new(Announcement)
 	a.rect, _ = sf.NewRectangleShape()
 	a.rect.SetFillColor(sf.ColorBlack())
@@ -52,12 +52,10 @@ func NewAnnouncement() *Announcement {
 	a.text.SetColor(sf.ColorWhite())
 	a.text.SetPosition(sf.Vector2f{1, 1})
 
-	return a
-}
-
-func (a *Announcement) SetString(s string) {
 	a.text.SetString(s)
 	a.text.SetColor(sf.ColorWhite())
+
+	return a
 }
 
 func (a *Announcement) Draw(w *sf.RenderWindow) {
@@ -194,8 +192,7 @@ func (g *Game) run() {
 			//Check if player died.
 			if g.player.Mob == nil {
 				fmt.Print("Game Over, you died.\n")
-				g.announcement = NewAnnouncement()
-				g.announcement.SetString("Your soul has perished.\nPress Escape to exit.")
+				g.announcement = NewAnnouncement("Your soul has perished.\nPress Escape to exit.")
 				g.state = QUIT
 			}
 
