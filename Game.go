@@ -15,6 +15,8 @@ type State int
 const (
 	//PLAY state means the player is in control of its character.
 	PLAY State = iota
+	//QUIT state means the game loop should end.
+	QUIT
 	//LOOK state means the player is using the look command.
 	LOOK
 	//LOG state means the player is looking at the log
@@ -31,6 +33,45 @@ type Drawer interface {
 //Draw draws any drawer on the window.
 func (g *Game) Draw(d Drawer) {
 	d.Draw(g.window)
+}
+
+type Announcement struct {
+	rect *sf.RectangleShape
+	text *sf.Text
+}
+
+func NewAnnouncement() *Announcement {
+	a := new(Announcement)
+	a.rect, _ = sf.NewRectangleShape()
+	a.rect.SetFillColor(sf.ColorBlack())
+	a.rect.SetOutlineThickness(1.0)
+	a.rect.SetOutlineColor(sf.ColorWhite())
+
+	a.text, _ = sf.NewText(Font)
+	a.text.SetCharacterSize(12)
+	a.text.SetColor(sf.ColorWhite())
+	a.text.SetPosition(sf.Vector2f{1, 1})
+
+	return a
+}
+
+func (a *Announcement) SetString(s string) {
+	a.text.SetString(s)
+	a.text.SetColor(sf.ColorWhite())
+}
+
+func (a *Announcement) Draw(w *sf.RenderWindow) {
+	rect := a.text.GetLocalBounds()
+	padding := float32(10)
+	resW := readSettings().resW
+	resH := readSettings().resH
+	a.rect.SetSize(sf.Vector2f{rect.Width + padding, rect.Height + padding})
+	a.rect.SetPosition(sf.Vector2f{(resW/2 - rect.Width) + padding, (resH/2 - rect.Height) + padding})
+	rectBounds := a.rect.GetGlobalBounds()
+	a.text.SetPosition(sf.Vector2f{rectBounds.Left + padding/2, rectBounds.Top + padding/2})
+	a.rect.Draw(w, sf.DefaultRenderStates())
+
+	a.text.Draw(w, sf.DefaultRenderStates())
 }
 
 //Game contains the base data of the game, from the window, to its current entities and area currently in memory.
@@ -50,6 +91,8 @@ type Game struct {
 	hpText   *sf.Text
 	lookText *sf.Text
 	logText  *sf.Text
+
+	announcement *Announcement
 }
 
 //NewGame initializes a Game struct.
@@ -99,11 +142,10 @@ func NewGame() *Game {
 
 func (g *Game) run() {
 
-	for g.window.IsOpen() {
-
+	for g.window.IsOpen() && g.state != QUIT {
 		wait := true
 	pollLoop:
-		for event := g.window.PollEvent(); event != nil; event = g.window.PollEvent() {
+		for event := g.window.PollEvent(); event != nil && g.announcement == nil; event = g.window.PollEvent() {
 			switch et := event.(type) {
 			case sf.EventClosed:
 				g.window.Close()
@@ -152,8 +194,21 @@ func (g *Game) run() {
 			//Check if player died.
 			if g.player.Mob == nil {
 				fmt.Print("Game Over, you died.\n")
-				g.window.Close()
-				return
+				g.announcement = NewAnnouncement()
+				g.announcement.SetString("Your soul has perished.\nPress Escape to exit.")
+				g.state = QUIT
+			}
+
+			if g.announcement != nil {
+				g.window.SetView(g.window.GetDefaultView())
+				g.announcement.Draw(g.window)
+				g.window.Display()
+
+				for !sf.KeyboardIsKeyPressed(sf.KeyEscape) {
+					//Pause the game.
+				}
+				g.announcement = nil
+				continue
 			}
 
 			if g.state == LOOK {
