@@ -62,6 +62,7 @@ func (a *Area) genTestRoom() {
 }
 
 func (a *Area) genFromPerlin(seed uint) {
+	//TODO implements variable sizes.
 	a.width = 222
 	a.height = 122
 	a.prepareArea()
@@ -98,6 +99,7 @@ func (a *Area) Draw(window *sf.RenderWindow) {
 	var fromY int
 	var toY int
 
+	//TODO implement sight in character
 	sight := 28
 
 	player := a.mobs[0]

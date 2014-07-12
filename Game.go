@@ -360,22 +360,27 @@ func (g *Game) handleInput(key rune) (wait bool) {
 		move(-1, 1)
 	case '5':
 		wait = false
+	//Get/Grab/Pickup Item
 	case 'g':
 		wait = false
 		g.tryPickUp()
+	//Use items menu
 	case 'u':
 		wait = true
 		g.state = INVENTORY
 		g.listUsables()
+	//Look command
 	case 'x':
 		wait = true
 		g.state = LOOK
 		g.cursor.SetPosition(g.player.Position())
+	//Show message log
 	case 'L':
 		wait = true
 		g.state = LOG
 		g.openLog()
 
+	//Go down stairs
 	case '>':
 		if stair := g.area.tiles[g.player.x+g.player.y*g.area.width]; stair.downStair {
 			g.switchArea(stair)
@@ -383,6 +388,7 @@ func (g *Game) handleInput(key rune) (wait bool) {
 			log("No stairs there.")
 		}
 
+	//Go up stairs
 	case '<':
 		if stair := g.area.tiles[g.player.x+g.player.y*g.area.width]; stair.upStair {
 			g.switchArea(stair)
