@@ -380,6 +380,11 @@ func (g *Game) handleInput(key rune) (wait bool) {
 		g.state = LOG
 		g.openLog()
 
+		//Open Souls menu
+	case 'S':
+		wait = true
+		g.announcement = NewAnnouncement(g.player.pouch.getList())
+
 	//Go down stairs
 	case '>':
 		if stair := g.area.tiles[g.player.x+g.player.y*g.area.width]; stair.downStair {

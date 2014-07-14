@@ -29,12 +29,18 @@ type Entity struct {
 	sprite *Graph
 }
 
-//Mob contains the data that an entity of type mob can use, meaning, any NPC.
-type Mob struct {
+type stats struct {
 	maxhp int
 	curhp int
 	atk   int
 	def   int
+}
+
+//Mob contains the data that an entity of type mob can use, meaning, any NPC.
+type Mob struct {
+	*stats
+
+	pouch SoulPouch
 
 	inventory Inventory
 	faction   []Faction
@@ -49,6 +55,7 @@ func NewEntity(name string, spriteX, spriteY, posX, posY int) *Entity {
 	sprite.SetPosition(sf.Vector2f{float32(posX * sprite.size), float32(posY * sprite.size)})
 
 	m := new(Mob)
+	m.stats = new(stats)
 	m.maxhp, m.curhp = 30, 30
 	m.atk = 10
 	m.def = 4
@@ -73,6 +80,7 @@ func NewEntityFromFile(name string, x, y int) *Entity {
 	e.Mob = nil
 	if data["type"].(string) == "mob" {
 		e.Mob = new(Mob)
+		e.stats = new(stats)
 		e.maxhp, e.curhp = int(data["hp"].(float64)), int(data["hp"].(float64))
 		e.atk = int(data["atk"].(float64))
 		e.def = int(data["def"].(float64))
@@ -164,6 +172,7 @@ func (attacker *Entity) attack(defender *Entity) {
 		curhp := defender.curhp
 		afterhp := curhp - (attacker.atk - defender.def)
 		if afterhp <= 0 {
+			attacker.absorb(defender.getSoul())
 			defender.die()
 			return
 		}
@@ -205,6 +214,23 @@ func (m *Mob) heal(amount int) {
 	if m.curhp > m.maxhp {
 		m.curhp = m.maxhp
 	}
+}
+
+func (m *Mob) absorb(soul *Soul) {
+	m.pouch = append(m.pouch, soul)
+}
+
+func (m *Mob) getSoul() *Soul {
+	soul := new(Soul)
+	soul.stats = new(stats)
+
+	percOfPower := 0.1
+
+	soul.maxhp = int(float64(m.maxhp) * percOfPower)
+	soul.atk = int(float64(m.atk) * percOfPower)
+	soul.def = int(float64(m.def) * percOfPower)
+
+	return soul
 }
 
 func (e *Entity) tryOpen(t *Tile) {
