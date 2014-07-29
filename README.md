@@ -1,4 +1,4 @@
-## Preliminary description and overview of the game mechanics. Thinks could change significantly.
+## Preliminary description and overview of the game mechanics. Things could change significantly.
 
 ##Souls of the Fallen
 
@@ -15,7 +15,7 @@ Complete crystals are a rare find, most crystal you'll get are the ones you'll h
 
 **Strengtening equipment**, socketed equipment can have soul crystals inserted into them, again, experimenting with different crystals having different souls in them, will surely be beneficial.
 
-**Removing crystals** from equipment is an easy task, and any smith can do it.
+Removing crystals from equipment is an easy task, and any smith can do it.
 
 Removing souls from crystals is also possible, but not much of an easy job, only expert shamans can do this.
 
