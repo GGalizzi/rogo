@@ -106,6 +106,7 @@ func NewGame() *Game {
 
 	for i := 0; i < 3; i++ {
 		g.area.mobs = append(g.area.mobs, NewEntityFromFile("orc", 3+i, 1))
+		g.area.mobs = append(g.area.mobs, NewEntityFromFile("ogre", 4+i, 2))
 		g.area.items = append(g.area.items, NewEntityFromFile("potion", 4, 4))
 	}
 	g.area.mobs = append(g.area.mobs, g.player)

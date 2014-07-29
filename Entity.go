@@ -56,7 +56,7 @@ func NewEntity(name string, spriteX, spriteY, posX, posY int) *Entity {
 
 	m := new(Mob)
 	m.stats = new(stats)
-	m.maxhp, m.curhp = 30, 30
+	m.maxhp, m.curhp = 130, 130
 	m.atk = 10
 	m.def = 4
 	m.faction = append(m.faction, PLAYER)

@@ -11,11 +11,7 @@ func (sp *SoulPouch) getList() (list string) {
 	var slist []string
 	for _, s := range *sp {
 
-		if s.atk > s.def {
-			slist = append(slist, "red soul")
-		} else {
-			slist = append(slist, "blue soul")
-		}
+		slist = append(slist, s.name())
 	}
 
 	for k, v := range slist {
@@ -26,4 +22,20 @@ func (sp *SoulPouch) getList() (list string) {
 	}
 
 	return
+}
+
+func (s *Soul) name() string {
+	if s.atk <= 1 && s.def <= 1 && s.maxhp <= 1 {
+		return "weak soul"
+	}
+
+	if s.atk > s.def && s.atk > s.maxhp {
+		return "red soul"
+	}
+
+	if s.maxhp > s.def+5 && s.maxhp > s.atk+5 {
+		return "green soul"
+	}
+
+	return "blue soul"
 }
