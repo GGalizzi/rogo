@@ -220,9 +220,10 @@ func (m *Mob) absorb(soul *Soul) {
 	m.pouch = append(m.pouch, soul)
 }
 
-func (m *Mob) getSoul() *Soul {
+func (m *Entity) getSoul() *Soul {
 	soul := new(Soul)
 	soul.stats = new(stats)
+	soul.name = soul.genName(m.name)
 
 	percOfPower := 0.1
 

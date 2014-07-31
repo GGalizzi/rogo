@@ -1,8 +1,12 @@
 package main
 
+import "fmt"
+
 type Soul struct {
 	*Item
 	*stats
+
+	name string
 }
 
 type SoulPouch []*Soul
@@ -15,7 +19,7 @@ func (sp *SoulPouch) getList() (list string) {
 	}
 	for _, s := range *sp {
 
-		slist = append(slist, s.name())
+		slist = append(slist, s.name)
 	}
 
 	for k, v := range slist {
@@ -28,18 +32,18 @@ func (sp *SoulPouch) getList() (list string) {
 	return
 }
 
-func (s *Soul) name() string {
+func (s *Soul) genName(entName string) string {
 	if s.atk <= 1 && s.def <= 1 && s.maxhp <= 1 {
-		return "weak soul"
+		return fmt.Sprintf("weak %s soul", entName)
 	}
 
 	if s.atk > s.def && s.atk > s.maxhp {
-		return "red soul"
+		return fmt.Sprintf("red %s soul", entName)
 	}
 
 	if s.maxhp > s.def+5 && s.maxhp > s.atk+5 {
-		return "green soul"
+		return fmt.Sprintf("green %s soul", entName)
 	}
 
-	return "blue soul"
+	return fmt.Sprintf("blue %s soul", entName)
 }
