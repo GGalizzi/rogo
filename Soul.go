@@ -9,6 +9,10 @@ type SoulPouch []*Soul
 
 func (sp *SoulPouch) getList() (list string) {
 	var slist []string
+	if len(*sp) == 0 {
+		log("There are no souls in your pouch.")
+		return
+	}
 	for _, s := range *sp {
 
 		slist = append(slist, s.name())

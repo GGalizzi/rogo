@@ -41,6 +41,9 @@ type Announcement struct {
 }
 
 func NewAnnouncement(s string) *Announcement {
+	if len(s) == 0 {
+		return nil
+	}
 	a := new(Announcement)
 	a.rect, _ = sf.NewRectangleShape()
 	a.rect.SetFillColor(sf.ColorBlack())
