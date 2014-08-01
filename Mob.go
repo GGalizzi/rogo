@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 
 	sf "bitbucket.org/krepa098/gosfml2"
 )
@@ -145,7 +146,6 @@ func (attacker *Mob) attack(defender *Mob) {
 		if afterhp <= 0 {
 			defender.curhp = 0
 			attacker.absorb(defender.getSoul())
-			defender.die()
 			return
 		}
 		if afterhp > curhp {
@@ -159,8 +159,22 @@ func (attacker *Mob) attack(defender *Mob) {
 	}
 }
 
-func (m *Mob) die() {
+func (m *Mob) die(a *Area, i int) {
 	m.sprite.SetColor(sf.ColorRed())
+
+	mPos := m.Position()
+	for i := 0; i < 3; i++ { // Spill blood.
+		r := rand.Perm(3)
+		a.tiles[(mPos.X+r[0]-1)+(mPos.Y+r[2]-1)*a.width].SetColor(sf.ColorRed())
+	}
+
+	drops := m.getDrops()
+	a.items = append(a.items, drops...) //Add drops to list
+
+	//Remove from list
+	s := a.mobs
+	s[i], s = s[len(s)-1], s[:len(s)-1]
+	a.mobs = s
 }
 
 func (m *Mob) pickUp(i *Item) {
@@ -181,6 +195,18 @@ func (m *Mob) heal(amount int) {
 	if m.curhp > m.maxhp {
 		m.curhp = m.maxhp
 	}
+}
+
+func (m *Mob) getDrops() []*Item {
+	var d []*Item
+
+	corpse := new(Item)
+	corpse.name = fmt.Sprintf("%s corpse", m.name)
+	corpse.Entity = m.Entity
+
+	d = append(d, corpse)
+
+	return d
 }
 
 func (m *Mob) absorb(soul *Soul) {
