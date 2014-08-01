@@ -179,18 +179,7 @@ func (g *Game) run() {
 			//Process mobs Ai, check for deaths and draw them.
 			for i, m := range g.area.mobs {
 				if m.curhp <= 0 {
-					mPos := m.Position()
-					for i := 0; i < 3; i++ { // Spill blood.
-						r := rand.Perm(3)
-						g.area.tiles[(mPos.X+r[0]-1)+(mPos.Y+r[2]-1)*g.area.width].SetColor(sf.ColorRed())
-					}
-					/* TODO Implement drop system
-					drops := m.getDrops()
-					g.area.items = append(g.area.items, drops...)
-					*/
-					s := g.area.mobs
-					s[i], s = s[len(s)-1], s[:len(s)-1]
-					g.area.mobs = s
+					m.die(g.area, i)
 				}
 				//Check if we should process AI
 				if !wait && m != g.player {

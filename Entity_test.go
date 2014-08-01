@@ -81,14 +81,22 @@ func TestMobDeath(t *testing.T) {
 	orc.curhp = 1
 	g.area.mobs = append(g.area.mobs, orc, g.player)
 
-	g.handleInput('2')
-
-	t.Skipf("Need to change this test so it checks that the mob has been eliminated from g.area.mobs slice")
-	/*
-		if orc.Mob != nil || orc.Item == nil {
-			t.Errorf("Expected orc to die. i.e: Mob be nil, Item not be nil ->: %v", orc)
+	for i, m := range g.area.mobs {
+		if m == orc {
+			orc.die(g.area, i)
 		}
-	*/
+	}
+
+	found := false
+	for _, m := range g.area.mobs {
+		if m == orc {
+			found = true
+		}
+	}
+
+	if found {
+		t.Errorf("Expected orc to die. i.e: Mob be nil, Item not be nil ->: %v", orc)
+	}
 }
 
 func TestPlayerAttack(t *testing.T) {
