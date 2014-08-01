@@ -143,6 +143,7 @@ func (attacker *Mob) attack(defender *Mob) {
 		curhp := defender.curhp
 		afterhp := curhp - (attacker.atk - defender.def)
 		if afterhp <= 0 {
+			defender.curhp = 0
 			attacker.absorb(defender.getSoul())
 			defender.die()
 			return

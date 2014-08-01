@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -58,23 +57,6 @@ func log(s string) {
 	if err != nil {
 		panic(err)
 	}
-}
-
-func removeFromList(a interface{}, i int) interface{} {
-	//a[len(a)-1], a[i], a = nil, a[len(a)-1], a[:len(a)-1] // Deletes completely
-	switch t := a.(type) {
-	case []*Mob:
-		fmt.Printf("type: %v", t)
-		if len(t) <= i {
-			fmt.Printf("Trying to remove something that doesn't exist? %v [%d]\n", a, i)
-			return t
-		}
-		t[i], t = t[len(t)-1], t[:len(t)-1]
-
-		return a
-	}
-
-	return a
 }
 
 //Settings struct defines all the variable settings of the game, which are to be stored in a JSON file.

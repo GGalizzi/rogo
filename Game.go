@@ -188,7 +188,9 @@ func (g *Game) run() {
 					drops := m.getDrops()
 					g.area.items = append(g.area.items, drops...)
 					*/
-					g.area.mobs = removeFromList(g.area.mobs, i).([]*Mob)
+					s := g.area.mobs
+					s[i], s = s[len(s)-1], s[:len(s)-1]
+					g.area.mobs = s
 				}
 				//Check if we should process AI
 				if !wait && m != g.player {
@@ -257,7 +259,10 @@ func (g *Game) tryPickUp() {
 	for l, i := range g.area.items {
 		if g.player.Position() == i.Position() {
 			g.player.pickUp(i)
-			g.area.items = removeFromList(g.area.items, l).([]*Item)
+			//g.area.items = removeFromList(g.area.items, l).([]*Item)
+			s := g.area.items
+			s[l], s = s[len(s)-1], s[:len(s)-1]
+			g.area.items = s
 			return
 		}
 	}
