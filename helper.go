@@ -60,13 +60,19 @@ func log(s string) {
 	}
 }
 
-func removeFromList(a []*Entity, i int) []*Entity {
+func removeFromList(a interface{}, i int) interface{} {
 	//a[len(a)-1], a[i], a = nil, a[len(a)-1], a[:len(a)-1] // Deletes completely
-	if len(a) <= i {
-		fmt.Printf("Trying to remove something that doesn't exist? %v [%d]\n", a, i)
+	switch t := a.(type) {
+	case []*Mob:
+		fmt.Printf("type: %v", t)
+		if len(t) <= i {
+			fmt.Printf("Trying to remove something that doesn't exist? %v [%d]\n", a, i)
+			return t
+		}
+		t[i], t = t[len(t)-1], t[:len(t)-1]
+
 		return a
 	}
-	a[i], a = a[len(a)-1], a[:len(a)-1]
 
 	return a
 }

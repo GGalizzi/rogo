@@ -17,7 +17,7 @@ func TestMoveToBlockedTile(t *testing.T) {
 
 	g.area.placeTile("wall", 3, 3)
 
-	p := NewEntity("player", 0, 0, 2, 3)
+	p := NewMob("player", 0, 0, 2, 3)
 
 	p.Move(1, 0, g)
 

@@ -11,6 +11,8 @@ const (
 )
 
 type Item struct {
+	*Entity
+
 	name  string
 	itype ItemType
 
@@ -27,4 +29,24 @@ type Inventory map[string]*Item
 func potionEffect(i *Item, m *Mob) {
 	m.heal(i.potency)
 	log("Drank " + i.name)
+}
+
+func NewItemFromFile(name string, x, y int) *Item {
+	i := new(Item)
+	ent, data := NewEntityFromFile(name, x, y)
+	i.Entity = ent
+
+	if data["type"].(string) == "item" {
+		i.name = name
+		i.stack = 1
+		i.itype = ItemType(data["itemType"].(string))
+		switch i.itype {
+		case "potion":
+			i.effect = potionEffect
+			i.potency = int(data["potency"].(float64))
+		case "key":
+		}
+	}
+
+	return i
 }

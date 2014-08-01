@@ -4,8 +4,8 @@ import "testing"
 
 func TestSoulAbsorb(t *testing.T) {
 
-	p := NewEntity("player", 0, 0, 2, 3)
-	e := NewEntity("enemy", 0, 0, 3, 3)
+	p := NewMob("player", -1, 0, 2, 3)
+	e := NewMob("enemy", -1, 0, 3, 3)
 
 	e.curhp = 1
 	e.faction = nil
@@ -22,7 +22,7 @@ func TestSoulAbsorb(t *testing.T) {
 }
 
 func TestGetSoul(t *testing.T) {
-	mob := NewEntity("mob", 0, 0, 2, 2)
+	mob := NewMob("mob", -1, 0, 2, 2)
 
 	mob.maxhp = 93
 	mob.atk = 13

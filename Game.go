@@ -79,8 +79,8 @@ func (a *Announcement) Draw(w *sf.RenderWindow) {
 type Game struct {
 	window *sf.RenderWindow
 	area   *Area
-	player *Entity
-	cursor *Entity
+	player *Mob
+	cursor *Mob
 
 	state State
 	Settings
@@ -104,13 +104,13 @@ func NewGame() *Game {
 	g.state = PLAY
 
 	g.area = NewArea()
-	g.player = NewEntity("player", 0, 0, 3, 4)
-	g.cursor = NewEntity("cursor", 0, 0, 2, 2)
+	g.player = NewMob("player", 0, 0, 3, 4)
+	g.cursor = NewMob("cursor", 0, 0, 2, 2)
 
 	for i := 0; i < 3; i++ {
-		g.area.mobs = append(g.area.mobs, NewEntityFromFile("orc", 3+i, 1))
-		g.area.mobs = append(g.area.mobs, NewEntityFromFile("ogre", 4+i, 2))
-		g.area.items = append(g.area.items, NewEntityFromFile("potion", 4, 4))
+		g.area.mobs = append(g.area.mobs, NewMobFromFile("orc", 3+i, 1))
+		g.area.mobs = append(g.area.mobs, NewMobFromFile("ogre", 4+i, 2))
+		g.area.items = append(g.area.items, NewItemFromFile("potion", 4, 4))
 	}
 	g.area.mobs = append(g.area.mobs, g.player)
 
@@ -178,23 +178,27 @@ func (g *Game) run() {
 
 			//Process mobs Ai, check for deaths and draw them.
 			for i, m := range g.area.mobs {
-				if m.Mob == nil {
+				if m.curhp <= 0 {
 					mPos := m.Position()
 					for i := 0; i < 3; i++ { // Spill blood.
 						r := rand.Perm(3)
 						g.area.tiles[(mPos.X+r[0]-1)+(mPos.Y+r[2]-1)*g.area.width].SetColor(sf.ColorRed())
 					}
-					g.area.items = append(g.area.items, m)
-					g.area.mobs = removeFromList(g.area.mobs, i)
+					/* TODO Implement drop system
+					drops := m.getDrops()
+					g.area.items = append(g.area.items, drops...)
+					*/
+					g.area.mobs = removeFromList(g.area.mobs, i).([]*Mob)
 				}
-				if !wait && m != g.player && m.Mob != nil {
+				//Check if we should process AI
+				if !wait && m != g.player {
 					g.processAI(m)
 				}
 				g.Draw(m)
 			}
 
 			//Check if player died.
-			if g.player.Mob == nil {
+			if g.player.curhp <= 0 {
 				fmt.Print("Game Over, you died.\n")
 				g.announcement = NewAnnouncement("Your soul has perished.\nPress Escape to exit.")
 				g.state = QUIT
@@ -253,7 +257,7 @@ func (g *Game) tryPickUp() {
 	for l, i := range g.area.items {
 		if g.player.Position() == i.Position() {
 			g.player.pickUp(i)
-			g.area.items = removeFromList(g.area.items, l)
+			g.area.items = removeFromList(g.area.items, l).([]*Item)
 			return
 		}
 	}
@@ -305,8 +309,8 @@ listLoop:
 	g.state = PLAY
 }
 
-func (g *Game) processAI(e *Entity) {
-	e.moveTowards(g.player, g)
+func (g *Game) processAI(m *Mob) {
+	m.moveTowards(g.player.Entity, g)
 }
 
 func (g *Game) describe(e *Entity) {
@@ -316,7 +320,7 @@ func (g *Game) describe(e *Entity) {
 
 func (g *Game) handleInput(key rune) (wait bool) {
 	wait = true
-	var inControl *Entity
+	var inControl *Mob
 	if g.state == PLAY {
 		inControl = g.player
 	} else if g.state == LOOK {

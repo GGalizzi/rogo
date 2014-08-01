@@ -77,7 +77,7 @@ func TestStateCommands(t *testing.T) {
 
 func TestLookCommand(t *testing.T) {
 	g := MockNewGame()
-	orc := NewEntityFromFile("orc", 12, 13)
+	orc := NewMobFromFile("orc", 12, 13)
 	g.area.mobs = append(g.area.mobs, orc)
 
 	g.handleInput('x')
@@ -87,7 +87,7 @@ func TestLookCommand(t *testing.T) {
 	}
 	g.handleInput('8') // Go back up
 
-	newOrc := NewEntityFromFile("orc", 12, 13)
+	newOrc := NewMobFromFile("orc", 12, 13)
 	g.area.mobs = append(g.area.mobs, newOrc)
 	if l := len(g.area.mobs); l != 2 {
 		t.Errorf("Length of g.area.mobs should be 2. Got: %v", l)
@@ -104,7 +104,7 @@ func TestLookCommand(t *testing.T) {
 		t.Errorf("Expected empty string. Got:\n \"%v\"", actual)
 	}
 
-	g.area.items = append(g.area.items, NewEntityFromFile("potion", 13, 12))
+	g.area.items = append(g.area.items, NewItemFromFile("potion", 13, 12))
 	g.handleInput('6')
 	if actual := g.lookText.GetString(); actual != "potion" {
 		t.Errorf("Expected \"potion\". Got:\n \"%v\"", actual)
@@ -114,8 +114,8 @@ func TestLookCommand(t *testing.T) {
 func MockNewGame() *Game {
 	g := new(Game)
 	g.area = PrepareArea()
-	g.player = NewEntity("player", 0, 0, 12, 12)
-	g.cursor = NewEntity("cursor", 0, 0, 12, 12)
+	g.player = NewMob("player", 0, 0, 12, 12)
+	g.cursor = NewMob("cursor", -1, 0, 12, 12)
 	g.gameView = sf.NewView()
 
 	var err error

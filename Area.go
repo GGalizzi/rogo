@@ -13,8 +13,8 @@ type Area struct {
 	width  int
 	height int
 
-	mobs  []*Entity
-	items []*Entity
+	mobs  []*Mob
+	items []*Item
 
 	tiles []*Tile
 }
@@ -51,7 +51,7 @@ func (a *Area) genTestRoom() {
 				a.placeTile("wall", x, y)
 			} else {
 				if rand.Intn(125) < 2 {
-					a.mobs = append(a.mobs, NewEntityFromFile("orc", x, y))
+					a.mobs = append(a.mobs, NewMobFromFile("orc", x, y))
 				}
 			}
 			if y == a.height/2 && x == a.width/2 {
@@ -152,7 +152,7 @@ func (a *Area) placeTile(name string, x, y int) *Tile {
 		t.door = true
 
 		//Call some function to determine the location of the key for the door.
-		key := NewEntityFromFile("key", x-5, y)
+		key := NewItemFromFile("key", x-5, y)
 		key.linkedDoor = t
 
 		a.items = append(a.items, key)
