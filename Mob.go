@@ -169,7 +169,9 @@ func (m *Mob) die(a *Area, i int) {
 	}
 
 	drops := m.getDrops()
-	a.items = append(a.items, drops...)
+	a.items = append(a.items, drops...) //Add drops to list
+
+	//Remove from list
 	s := a.mobs
 	s[i], s = s[len(s)-1], s[:len(s)-1]
 	a.mobs = s
@@ -196,10 +198,11 @@ func (m *Mob) heal(amount int) {
 }
 
 func (m *Mob) getDrops() []*Item {
-	d := make([]*Item, 2)
+	var d []*Item
 
 	corpse := new(Item)
 	corpse.name = fmt.Sprintf("%s corpse", m.name)
+	corpse.Entity = m.Entity
 
 	d = append(d, corpse)
 
