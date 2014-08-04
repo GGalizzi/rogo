@@ -147,7 +147,8 @@ func (g *Game) run() {
 	for g.window.IsOpen() && g.state != QUIT {
 		wait := true
 	pollLoop:
-		for event := g.window.PollEvent(); event != nil && g.announcement == nil; event = g.window.PollEvent() {
+		//Event / input queue polling
+		for event := g.window.PollEvent(); event != nil; event = g.window.PollEvent() {
 			switch et := event.(type) {
 			case sf.EventClosed:
 				g.window.Close()
@@ -195,14 +196,25 @@ func (g *Game) run() {
 				g.state = QUIT
 			}
 
+			//Display announcement if there is one.
 			if g.announcement != nil {
 				g.window.SetView(g.window.GetDefaultView())
 				g.announcement.Draw(g.window)
 				g.window.Display()
 
+				/*
+					for !sf.KeyboardIsKeyPressed(sf.KeyEscape) {
+						//Pause the game.
+					}
+				*/
+
 				for !sf.KeyboardIsKeyPressed(sf.KeyEscape) {
-					//Pause the game.
+					//While the escape key has not been pressed yet
+					for event := g.window.PollEvent(); event != nil; event = g.window.PollEvent() {
+						//Ignore and pop all events of the queue
+					}
 				}
+
 				g.announcement = nil
 				continue
 			}
@@ -387,6 +399,10 @@ func (g *Game) handleInput(key rune) (wait bool) {
 		wait = true
 		g.announcement = NewAnnouncement(g.player.pouch.getList())
 
+	case 'D':
+		//debug
+		wait = true
+		g.announcement = NewAnnouncement("Debugging")
 	//Go down stairs
 	case '>':
 		if stair := g.area.tiles[g.player.x+g.player.y*g.area.width]; stair.downStair {
